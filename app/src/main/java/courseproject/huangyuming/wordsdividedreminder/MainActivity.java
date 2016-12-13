@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +21,7 @@ import courseproject.huangyuming.bean.Reminder;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,10 +42,10 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Intent intent = new Intent(MainActivity.this, CreateActivity.class);
-//                startActivityForResult(intent, 0);
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, CreateActivity.class);
+                startActivityForResult(intent, 0);
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
 
@@ -84,9 +86,9 @@ public class MainActivity extends AppCompatActivity {
         List<Reminder> reminders = new ArrayList<>();
         try {
             reminders.addAll(mHelper.getHomeworkDao().queryForAll());
-            reminders.add(new Reminder("hhh1"));
-            reminders.add(new Reminder("hhh2"));
-            reminders.add(new Reminder("hhh3"));
+            reminders.add(new Reminder(new Date().toString(), "hhh1"));
+            reminders.add(new Reminder(new Date().toString(), "hhh2"));
+            reminders.add(new Reminder(new Date().toString(), "hhh3"));
             Log.i("Size", reminders.size()+"");
             for (int i = 0; i < reminders.size(); ++i) {
                 mItemArray.add(new Pair<>((long) i, reminders.get(i)));
@@ -151,10 +153,15 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindDragView(View clickedView, View dragView) {
-            CharSequence text = ((TextView) clickedView.findViewById(R.id.title)).getText();
-            ((TextView) dragView.findViewById(R.id.title)).setText(text);
-            text = ((TextView) clickedView.findViewById(R.id.content)).getText();
-            ((TextView) dragView.findViewById(R.id.content)).setText(text);
+            CharSequence text = ((TextView) clickedView.findViewById(R.id.time)).getText();
+            ((TextView) dragView.findViewById(R.id.time)).setText(text);
+
+            text = ((TextView) clickedView.findViewById(R.id.position)).getText();
+            ((TextView) dragView.findViewById(R.id.position)).setText(text);
+
+            text = ((TextView) clickedView.findViewById(R.id.contents)).getText();
+            ((TextView) dragView.findViewById(R.id.contents)).setText(text);
+
             dragView.setBackgroundColor(0xFF4876FF);
         }
     }

@@ -44,12 +44,9 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
 
         Reminder h = mItemList.get(position).second;
 
-//        String shortWrite = "";
-
-        holder.mTitle.setText(h.getLessonName());
-        holder.mContent.setText(h.getContent());
-        holder.mDdl.setText(h.getDdl());
-//        holder.itemView.setTag(text);
+        holder.time.setText(h.time);
+        holder.position.setText(h.position);
+        holder.contents.setText(h.contents);
     }
 
     @Override
@@ -58,16 +55,16 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
     }
 
     public class ViewHolder extends DragItemAdapter.ViewHolder {
-        public TextView mTitle;
-        public TextView mContent;
-        public TextView mDdl;
+        public TextView time;
+        public TextView position;
+        public TextView contents;
 
         public ViewHolder(final View itemView) {
             super(itemView, mGrabHandleId, mDragOnLongPress);
 
-            mTitle = (TextView) itemView.findViewById(R.id.title);
-            mContent = (TextView) itemView.findViewById(R.id.content);
-            mDdl = (TextView) itemView.findViewById(R.id.ddl);
+            time = (TextView) itemView.findViewById(R.id.time);
+            position = (TextView) itemView.findViewById(R.id.position);
+            contents = (TextView) itemView.findViewById(R.id.contents);
         }
 
         @Override

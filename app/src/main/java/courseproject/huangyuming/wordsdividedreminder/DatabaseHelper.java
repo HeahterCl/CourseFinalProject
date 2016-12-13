@@ -18,7 +18,7 @@ import courseproject.huangyuming.bean.Reminder;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
-    private static final String DATABASE_NAME = "database1.db";
+    private static final String DATABASE_NAME = "reminders.db";
     private static final int VERSION = 1;
 
     public DatabaseHelper(Context context) {
