@@ -56,10 +56,11 @@
             android:layout_weight="1"
             android:id="@+id/details"
             android:textSize="18sp"
+            android:padding="5dp"
             android:background="@drawable/edittext_style"/>
     </LinearLayout>
     <Button
         style="@style/ButtonStyle"
         android:id="@+id/complete"
-        android:text="完成"/>
+        android:text="确定"/>
 </LinearLayout>

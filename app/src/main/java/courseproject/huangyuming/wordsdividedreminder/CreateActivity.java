@@ -1,8 +1,10 @@
 package courseproject.huangyuming.wordsdividedreminder;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -44,7 +46,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class CreateActivity extends AppCompatActivity {
+import courseproject.huangyuming.bean.Reminder;
+
+public class CreateActivity extends Activity {
     private static final String dividerurl = "http://api.ltp-cloud.com/analysis/";
     private static final String stringToTimeUrl = "http://osp.voicecloud.cn/index.php/ajax/generaldic/getresult";
     private static final int UPDATE_CONTENT = 0;
@@ -59,6 +63,7 @@ public class CreateActivity extends AppCompatActivity {
     private Dialog wait;
     private String time;
     private String date;
+    private Reminder reminder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +78,8 @@ public class CreateActivity extends AppCompatActivity {
         logo = (ImageView)findViewById(R.id.logo);
         type = (TextView)findViewById(R.id.type);
         complete = (Button)findViewById(R.id.complete);
+
+        reminder = new Reminder();
 
         divider.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,18 +108,28 @@ public class CreateActivity extends AppCompatActivity {
                 if (type.getText().toString().equals("时间")) {
                     logo.setImageResource(R.mipmap.location);
                     type.setText("地点");
+                    reminder.setTime(details.getText().toString());
                     details.setText("");
-                    ////TODO 数据库操作 增加时间
                 } else if (type.getText().toString().equals("地点")) {
                     logo.setImageResource(R.mipmap.thing);
                     type.setText("任务");
+                    reminder.setPosition(details.getText().toString());
                     details.setText("");
-                    ////TODO 数据库操作 增加地点
+                    complete.setText("完成");
                 } else {
-                    ////TODO SQLite return MainActivity
+                    reminder.setTasks(details.getText().toString());
+                    Intent intent = new Intent(CreateActivity.this, MainActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("reminder", reminder);
+                    intent.putExtras(bundle);
+                    setResult(RESULT_OK, intent);
+                    finish();
                 }
             }
         });
+
+
+
 
         details.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,8 +140,8 @@ public class CreateActivity extends AppCompatActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(CreateActivity.this);
                     builder.setView(newView);
 
-                    DatePicker datePicker = (DatePicker) newView.findViewById(R.id.datePicker);
-                    TimePicker timePicker = (TimePicker) newView.findViewById(R.id.timePicker);
+                    final DatePicker datePicker = (DatePicker) newView.findViewById(R.id.datePicker);
+                    final TimePicker timePicker = (TimePicker) newView.findViewById(R.id.timePicker);
                     timePicker.setIs24HourView(true);
 
                     if (!details.getText().toString().equals("")) {
@@ -147,7 +164,14 @@ public class CreateActivity extends AppCompatActivity {
                     Dialog dialog = builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-
+                            int year = datePicker.getYear();
+                            int month = datePicker.getMonth()+1;
+                            int date = datePicker.getDayOfMonth();
+                            int hour = timePicker.getHour();
+                            int minute = timePicker.getMinute();
+                            String minuteStr = minute < 10 ? "0"+Integer.toString(minute) :Integer.toString(minute);
+                            details.setText(Integer.toString(year)+"-"+Integer.toString(month)+"-"
+                                    +Integer.toString(date)+" "+Integer.toString(hour)+":"+minuteStr+":00");
                         }
                     }).create();
                     dialog.show();
@@ -196,7 +220,6 @@ public class CreateActivity extends AppCompatActivity {
                         for (int j = 0; j < max; j++) {
                             JSONObject object = array.getJSONObject(i*rowNum+j);
                             String word = object.getString("cont");
-                            Log.v("word", word);
                             final Button button = new Button(CreateActivity.this);
                             button.setId(i*rowNum+j);
                             button.setText(word);
@@ -223,7 +246,6 @@ public class CreateActivity extends AppCompatActivity {
 
                 try {
                     //解析时间JSON
-                    Log.v("stringToTime", response.get(1));
                     JSONObject jsonObject = new JSONObject(response.get(1));
                     jsonObject = jsonObject.getJSONObject("semantic");
                     jsonObject = jsonObject.getJSONObject("slots");
@@ -304,7 +326,7 @@ public class CreateActivity extends AppCompatActivity {
             Toast.makeText(CreateActivity.this, "自动解析已完成，点击编辑框可更改", Toast.LENGTH_LONG).show();
             details.setText(date+" "+time);
         } else {
-            details.setText(details.getText()+" "+text);
+            details.setText(details.getText()+text);
         }
     }
 }

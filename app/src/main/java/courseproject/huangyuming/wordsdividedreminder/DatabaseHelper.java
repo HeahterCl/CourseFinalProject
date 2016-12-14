@@ -66,20 +66,20 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return instance;
     }
 
-    private Dao<Reminder, Integer> homeworkDao;
+    private Dao<Reminder, Integer> remindersDao;
     /**
-     * 获得homeworkDao
+     * 获得remindersDao
      *
      * @return
      * @throws SQLException
      */
-    public Dao<Reminder, Integer> getHomeworkDao() throws SQLException
+    public Dao<Reminder, Integer> getRemindersDao() throws SQLException
     {
-        if (homeworkDao == null)
+        if (remindersDao == null)
         {
-            homeworkDao = getDao(Reminder.class);
+            remindersDao = getDao(Reminder.class);
         }
-        return homeworkDao;
+        return remindersDao;
     }
 
     /**
@@ -89,7 +89,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void close()
     {
         super.close();
-        homeworkDao = null;
+        remindersDao = null;
     }
 
 }

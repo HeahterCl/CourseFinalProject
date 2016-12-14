@@ -1,6 +1,9 @@
 package courseproject.huangyuming.wordsdividedreminder;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -10,9 +13,11 @@ import android.widget.Toast;
 
 import com.woxthebox.draglistview.DragItemAdapter;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import courseproject.huangyuming.bean.Reminder;
+import courseproject.huangyuming.bean.ReminderDao;
 
 /**
  * Created by ym on 16-10-16.
@@ -44,9 +49,9 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
 
         Reminder h = mItemList.get(position).second;
 
-        holder.time.setText(h.time);
-        holder.position.setText(h.position);
-        holder.contents.setText(h.contents);
+        holder.time.setText(h.getTime());
+        holder.position.setText(h.getPosition());
+        holder.contents.setText(h.getTasks());
     }
 
     @Override
@@ -78,8 +83,21 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
         }
 
         @Override
-        public void onItemClicked(View view) {
-            Toast.makeText(view.getContext(), "Item clicked", Toast.LENGTH_SHORT).show();
+        public void onItemClicked(final View view) {
+            Dialog dialog = new AlertDialog.Builder(view.getContext()).setTitle("(⊙ˍ⊙)").setMessage("确定要删除吗？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    try {
+                        ReminderDao reminderDao = new ReminderDao(view.getContext());
+                        reminderDao.delete(Reminder.UPDATE_TIME, time.getText().toString());
+                        getItemList().remove(getItemId());
+                        // TODO 更新UI
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).setNegativeButton("取消", null).create();
+            dialog.show();
         }
 
         @Override
