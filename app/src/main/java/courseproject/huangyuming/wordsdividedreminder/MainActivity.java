@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.table.DatabaseTable;
 import com.woxthebox.draglistview.DragItem;
 import com.woxthebox.draglistview.DragListView;
@@ -86,16 +87,26 @@ public class MainActivity extends AppCompatActivity {
 
         mItemArray = new ArrayList<>();
         mReminderDao = new ReminderDao(MainActivity.this);
-        List<Reminder> reminders = new ArrayList<>();
+        Dao<Reminder, Integer> remindersDao;
         try {
-            reminders.addAll(mReminderDao.queryForAll());
-            Log.i("Size", reminders.size()+"");
+            remindersDao = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao();
+            List<Reminder> reminders = remindersDao.queryForAll();
             for (int i = 0; i < reminders.size(); ++i) {
                 mItemArray.add(new Pair<>((long) i, reminders.get(i)));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+//        List<Reminder> reminders = new ArrayList<>();
+//        try {
+//            reminders.addAll(mReminderDao.queryForAll());
+//            Log.i("Size", reminders.size()+"");
+//            for (int i = 0; i < reminders.size(); ++i) {
+//                mItemArray.add(new Pair<>((long) i, reminders.get(i)));
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
 
         mDragListView.setLayoutManager(new LinearLayoutManager(this));

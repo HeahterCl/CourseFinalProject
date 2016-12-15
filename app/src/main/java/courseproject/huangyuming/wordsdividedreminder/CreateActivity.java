@@ -154,8 +154,10 @@ public class CreateActivity extends Activity {
                             String[] dates = string.split("-");
                             Log.v("date", dates[0]+" "+dates[1]+" "+dates[2]);
                             datePicker.updateDate(Integer.valueOf(dates[0]), Integer.valueOf(dates[1])-1, Integer.valueOf(dates[2])-1);
-                            timePicker.setHour(Integer.valueOf(dates[3]));
-                            timePicker.setMinute(Integer.valueOf(dates[4]));
+                            timePicker.setCurrentHour(Integer.valueOf(dates[3]));
+                            timePicker.setCurrentMinute(Integer.valueOf(dates[4]));
+//                            timePicker.setHour(Integer.valueOf(dates[3]));
+//                            timePicker.setMinute(Integer.valueOf(dates[4]));
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
@@ -167,8 +169,10 @@ public class CreateActivity extends Activity {
                             int year = datePicker.getYear();
                             int month = datePicker.getMonth()+1;
                             int date = datePicker.getDayOfMonth();
-                            int hour = timePicker.getHour();
-                            int minute = timePicker.getMinute();
+                            int hour = timePicker.getCurrentHour();
+                            int minute = timePicker.getCurrentMinute();
+//                            int hour = timePicker.getHour();
+//                            int minute = timePicker.getMinute();
                             String minuteStr = minute < 10 ? "0"+Integer.toString(minute) :Integer.toString(minute);
                             details.setText(Integer.toString(year)+"-"+Integer.toString(month)+"-"
                                     +Integer.toString(date)+" "+Integer.toString(hour)+":"+minuteStr+":00");
