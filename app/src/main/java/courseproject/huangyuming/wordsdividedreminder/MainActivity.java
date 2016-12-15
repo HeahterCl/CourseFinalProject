@@ -86,17 +86,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mItemArray = new ArrayList<>();
-        mReminderDao = new ReminderDao(MainActivity.this);
-        Dao<Reminder, Integer> remindersDao;
+
+        // 手写数据库操作或使用框架其中选择一种
         try {
-            remindersDao = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao();
-            List<Reminder> reminders = remindersDao.queryForAll();
+            List<Reminder> reminders = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().queryForAll();
             for (int i = 0; i < reminders.size(); ++i) {
                 mItemArray.add(new Pair<>((long) i, reminders.get(i)));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+//        mReminderDao = new ReminderDao(MainActivity.this);
 //        List<Reminder> reminders = new ArrayList<>();
 //        try {
 //            reminders.addAll(mReminderDao.queryForAll());
@@ -119,13 +120,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+//        DatabaseHelper.getHelper(MainActivity.this).close();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK && requestCode == MainActivity.REQUEST) {
             Reminder h = (Reminder) data.getSerializableExtra("reminder");
             try {
-                mReminderDao.insert(h);
+                DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().create(h);
                 mItemArray.add(new Pair<>((long) mItemArray.size(), h));
                 mListAdapter.notifyDataSetChanged();
             } catch (Exception e) {
