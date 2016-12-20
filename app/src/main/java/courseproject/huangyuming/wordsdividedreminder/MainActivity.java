@@ -3,6 +3,10 @@ package courseproject.huangyuming.wordsdividedreminder;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -31,31 +35,42 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private DragListView mDragListView;
+    private FloatingActionButton mFab;
+
     private ArrayList<Pair<Long, Reminder>> mItemArray;
     private ItemAdapter mListAdapter;
     private ReminderDao mReminderDao;
 
     private static final int REQUEST = 1;
 
+    // sensor
+    private SensorManager mSensorManager;
+    private Sensor mMagneticSensor;
+    private Sensor mAccelerometerSensor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mMagneticSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+
+        mDragListView = (DragListView)findViewById(R.id.drag_list_view);
+
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, CreateActivity.class);
                 startActivityForResult(intent, REQUEST);
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
-
-        mDragListView = (DragListView)findViewById(R.id.drag_list_view);
 
         setupListRecyclerView();
     }
@@ -126,6 +141,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(mSensorEventListener, mMagneticSensor, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(mSensorEventListener, mAccelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(mSensorEventListener);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -135,6 +163,8 @@ public class MainActivity extends AppCompatActivity {
                 DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().create(h);
                 mItemArray.add(new Pair<>((long) mItemArray.size(), h));
                 mListAdapter.notifyDataSetChanged();
+
+                Snackbar.make(mFab, "创建成功", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -183,4 +213,62 @@ public class MainActivity extends AppCompatActivity {
             dragView.setBackgroundColor(0xFF4876FF);
         }
     }
+
+
+    private SensorEventListener mSensorEventListener = new SensorEventListener() {
+
+        float [] accValues;
+        float [] magValues;
+        long lastShakeTime = 0;
+
+        float newRotationDegree = 0;
+
+        private int shakeLock = 0;
+
+        @Override
+        public void onSensorChanged(SensorEvent sensorEvent) {
+            switch (sensorEvent.sensor.getType()) {
+                case Sensor.TYPE_ACCELEROMETER:
+                    accValues = sensorEvent.values;
+
+                    if (accValues[0] > 15) {
+                        if (shakeLock == 0) {
+                            shakeLock = 100;
+                            Toast.makeText(MainActivity.this, "shaked!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    break;
+                case Sensor.TYPE_MAGNETIC_FIELD:
+                    magValues = sensorEvent.values;
+                    break;
+            }
+
+            if (shakeLock > 0) {
+                shakeLock--;
+            }
+
+            if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER || sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+
+                newRotationDegree = 0;
+                if (accValues != null && magValues != null) {
+                    float[] R = new float[9];
+                    float[] values = new float[3];
+
+                    SensorManager.getRotationMatrix(R, null, accValues, magValues);
+                    SensorManager.getOrientation(R, values);
+
+                    newRotationDegree = (float) Math.toDegrees(values[0]);
+                }
+
+            }
+
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i) {
+
+        }
+    };
+
 }
