@@ -192,6 +192,43 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void removeFinishedReminders() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this)
+                .setTitle("(⊙ˍ⊙)")
+                .setMessage("确定将所有已完成备忘删除？")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        List<Pair<Long, Reminder>> toRemove = new ArrayList<>();
+                        for (Pair<Long, Reminder> item : mItemArray) {
+                            if (item.second.getFinished()) {
+                                toRemove.add(item);
+                            }
+                        }
+
+                        try {
+                            if (toRemove.size() == 0) {
+                                Snackbar.make(mFab, "没有已完成的备忘", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+                                return;
+                            }
+
+                            for (Pair<Long, Reminder> item : toRemove) {
+                                DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().delete(item.second);
+                            }
+                            mItemArray.removeAll(toRemove);
+                            mListAdapter.notifyDataSetChanged();
+
+                            Snackbar.make(mFab, "删除成功", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .setNegativeButton("取消", null);
+
+        builder.create().show();
+    }
+
     private static class MyDragItem extends DragItem {
 
         public MyDragItem(Context context, int layoutId) {
@@ -221,8 +258,6 @@ public class MainActivity extends AppCompatActivity {
 
         float newRotationDegree = 0;
 
-        private int shakeLock = 0;
-
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
             switch (sensorEvent.sensor.getType()) {
@@ -230,37 +265,11 @@ public class MainActivity extends AppCompatActivity {
                     accValues = sensorEvent.values;
 
                     if (accValues[0] > 15) {
-                        if (shakeLock == 0) {
-                            shakeLock = 100;
-                            Toast.makeText(MainActivity.this, "shaken!", Toast.LENGTH_SHORT).show();
+                        if (System.currentTimeMillis()-lastShakeTime >= 2000) {
+                            lastShakeTime = System.currentTimeMillis();
+//                            Toast.makeText(MainActivity.this, "shaken!", Toast.LENGTH_SHORT).show();
 
-                            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this)
-                                    .setTitle("(⊙ˍ⊙)")
-                                    .setMessage("确定将所有已完成备忘删除？")
-                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            List<Pair<Long, Reminder>> toRemove = new ArrayList<>();
-                                            for (Pair<Long, Reminder> item : mItemArray) {
-                                                if (item.second.getFinished()) {
-                                                    toRemove.add(item);
-                                                }
-                                            }
-
-                                            try {
-                                                for (Pair<Long, Reminder> item : toRemove) {
-                                                    DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().delete(item.second);
-                                                }
-                                                mItemArray.removeAll(toRemove);
-                                                mListAdapter.notifyDataSetChanged();
-                                            } catch (SQLException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    })
-                                    .setNegativeButton("取消", null);
-
-                            builder.create().show();
+                            removeFinishedReminders();
                         }
                     }
 
@@ -268,10 +277,6 @@ public class MainActivity extends AppCompatActivity {
                 case Sensor.TYPE_MAGNETIC_FIELD:
                     magValues = sensorEvent.values;
                     break;
-            }
-
-            if (shakeLock > 0) {
-                shakeLock--;
             }
 
             if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER || sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
