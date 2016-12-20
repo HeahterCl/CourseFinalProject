@@ -6,4 +6,6 @@
     <color name="buttonColor">#FED941</color><!--#31B3D7-->
     <color name="buttonShadowColor">#CCCCCC</color>
     <color name="textColor">#6D2300</color><!--#FFFFFF-->
+
+    <color name="finishedBackground">#DDDDDD</color><!--#FFFFFF-->
 </resources>

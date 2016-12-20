@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         mDragListView.setLayoutManager(new LinearLayoutManager(this));
-        mListAdapter = new ItemAdapter(mItemArray, R.layout.list_item, R.id.root, true);
+        mListAdapter = new ItemAdapter(MainActivity.this, mItemArray, R.layout.list_item, R.id.root, true);
         mDragListView.setAdapter(mListAdapter, true);
         mDragListView.setCanDragHorizontally(true);
         mDragListView.setCustomDragItem(new MyDragItem(this, R.layout.list_item));
@@ -213,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
             dragView.setBackgroundColor(0xFF4876FF);
         }
     }
-
 
     private SensorEventListener mSensorEventListener = new SensorEventListener() {
 

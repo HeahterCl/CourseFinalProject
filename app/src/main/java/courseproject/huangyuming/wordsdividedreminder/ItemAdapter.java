@@ -1,13 +1,17 @@
 package courseproject.huangyuming.wordsdividedreminder;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,11 +29,13 @@ import courseproject.huangyuming.bean.ReminderDao;
 
 public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapter.ViewHolder> {
 
+    private Context mContext;
     private int mLayoutId;
     private int mGrabHandleId;
     private boolean mDragOnLongPress;
 
-    public ItemAdapter(ArrayList<Pair<Long, Reminder>> list, int layoutId, int grabHandleId, boolean dragOnLongPress) {
+    public ItemAdapter(Context context, ArrayList<Pair<Long, Reminder>> list, int layoutId, int grabHandleId, boolean dragOnLongPress) {
+        mContext = context;
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
         mDragOnLongPress = dragOnLongPress;
@@ -52,6 +58,11 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
         holder.time.setText(h.getTime());
         holder.position.setText(h.getPosition());
         holder.contents.setText(h.getTasks());
+
+        if (h.getFinished()) {
+            holder.position.setText(h.getPosition()+"(已完成)");
+            holder.root.setBackgroundColor(mContext.getResources().getColor(R.color.finishedBackground));
+        }
     }
 
     @Override
@@ -60,9 +71,11 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
     }
 
     public class ViewHolder extends DragItemAdapter.ViewHolder {
+
         public TextView time;
         public TextView position;
         public TextView contents;
+        public RelativeLayout root;
 
         public ViewHolder(final View itemView) {
             super(itemView, mGrabHandleId, mDragOnLongPress);
@@ -70,6 +83,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
             time = (TextView) itemView.findViewById(R.id.time);
             position = (TextView) itemView.findViewById(R.id.position);
             contents = (TextView) itemView.findViewById(R.id.contents);
+            root = (RelativeLayout) itemView.findViewById(R.id.root);
         }
 
         @Override
@@ -84,13 +98,17 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
 
         @Override
         public void onItemClicked(final View view) {
-            Dialog dialog = new AlertDialog.Builder(view.getContext()).setTitle("(⊙ˍ⊙)").setMessage("确定要删除吗？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            Dialog dialog = new AlertDialog.Builder(view.getContext()).setTitle("(⊙ˍ⊙)").setMessage("确定将其设置为已完成？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
+                    Reminder r = getItemList().get(getAdapterPosition()).second;
+                    r.setFinished(true);
                     try {
-                        ReminderDao reminderDao = new ReminderDao(view.getContext());
-                        reminderDao.delete(Reminder.UPDATE_TIME, time.getText().toString());
-                        getItemList().remove(getItemId());
+                        DatabaseHelper.getHelper(mContext).getRemindersDao().update(r);
+                        notifyItemChanged(getAdapterPosition());
+//                        ReminderDao reminderDao = new ReminderDao(view.getContext());
+//                        reminderDao.delete(Reminder.UPDATE_TIME, time.getText().toString());
+//                        getItemList().remove(getItemId());
                         // TODO 更新UI
                     } catch (SQLException e) {
                         e.printStackTrace();
