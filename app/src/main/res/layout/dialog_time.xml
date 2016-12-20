@@ -8,11 +8,10 @@
         android:id="@+id/datePicker"
         android:datePickerMode="spinner"
         android:calendarViewShown="false"
-        android:spinnersShown="true"></DatePicker>
+        android:spinnersShown="true" />
     <TimePicker
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/timePicker"
-        android:timePickerMode="spinner"
-        ></TimePicker>
+        android:timePickerMode="spinner" />
 </LinearLayout>

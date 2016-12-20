@@ -10,7 +10,6 @@ import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -27,8 +26,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import com.j256.ormlite.stmt.query.In;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -47,12 +44,14 @@ import java.util.Date;
 import java.util.List;
 
 import courseproject.huangyuming.bean.Reminder;
+import courseproject.huangyuming.utility.SpeechRecognitionHelper;
 
 public class CreateActivity extends Activity {
     private static final String dividerurl = "http://api.ltp-cloud.com/analysis/";
     private static final String stringToTimeUrl = "http://osp.voicecloud.cn/index.php/ajax/generaldic/getresult";
     private static final int UPDATE_CONTENT = 0;
     private EditText before;
+    private Button startSRBtn;
     private Button divider;
     private LinearLayout mainlayout;
     private LinearLayout after;
@@ -71,6 +70,7 @@ public class CreateActivity extends Activity {
         setContentView(R.layout.activity_create);
 
         before = (EditText)findViewById(R.id.before);
+        startSRBtn = (Button)findViewById(R.id.startSRBtn);
         divider = (Button)findViewById(R.id.divider);
         mainlayout = (LinearLayout)findViewById(R.id.activity_main);
         after = (LinearLayout)findViewById(R.id.after);
@@ -80,6 +80,24 @@ public class CreateActivity extends Activity {
         complete = (Button)findViewById(R.id.complete);
 
         reminder = new Reminder();
+
+        startSRBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SpeechRecognitionHelper.getInstance().setOnResultListener(new SpeechRecognitionHelper.OnResultListener() {
+                    @Override
+                    public void onResult(String fileId, String result) {
+                        before.setText(result);
+                    }
+
+                    @Override
+                    public void onError(String errorMsg) {
+                        Toast.makeText(CreateActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                SpeechRecognitionHelper.getInstance().startRecognize(CreateActivity.this);
+            }
+        });
 
         divider.setOnClickListener(new View.OnClickListener() {
             @Override
