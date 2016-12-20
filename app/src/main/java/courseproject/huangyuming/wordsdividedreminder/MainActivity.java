@@ -1,6 +1,8 @@
 package courseproject.huangyuming.wordsdividedreminder;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.hardware.Sensor;
@@ -11,12 +13,14 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Pair<Long, Reminder>> mItemArray;
     private ItemAdapter mListAdapter;
-    private ReminderDao mReminderDao;
 
     private static final int REQUEST = 1;
 
@@ -87,10 +90,6 @@ public class MainActivity extends AppCompatActivity {
             public void onItemDragEnded(int fromPosition, int toPosition) {
                 if (fromPosition != toPosition) {
                     Toast.makeText(mDragListView.getContext(), "End - position: " + toPosition, Toast.LENGTH_SHORT).show();
-
-//                    for (int i = 0; i < mItemArray.size(); ++i) {
-//                        mItemArray.get(i).second.listIndex = i;
-//                    }
                 }
             }
 
@@ -233,7 +232,35 @@ public class MainActivity extends AppCompatActivity {
                     if (accValues[0] > 15) {
                         if (shakeLock == 0) {
                             shakeLock = 100;
-                            Toast.makeText(MainActivity.this, "shaked!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "shaken!", Toast.LENGTH_SHORT).show();
+
+                            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("(⊙ˍ⊙)")
+                                    .setMessage("确定将所有已完成备忘删除？")
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            List<Pair<Long, Reminder>> toRemove = new ArrayList<>();
+                                            for (Pair<Long, Reminder> item : mItemArray) {
+                                                if (item.second.getFinished()) {
+                                                    toRemove.add(item);
+                                                }
+                                            }
+
+                                            try {
+                                                for (Pair<Long, Reminder> item : toRemove) {
+                                                    DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().delete(item.second);
+                                                }
+                                                mItemArray.removeAll(toRemove);
+                                                mListAdapter.notifyDataSetChanged();
+                                            } catch (SQLException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    })
+                                    .setNegativeButton("取消", null);
+
+                            builder.create().show();
                         }
                     }
 
