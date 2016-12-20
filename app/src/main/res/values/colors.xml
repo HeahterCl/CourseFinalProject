@@ -8,4 +8,5 @@
     <color name="textColor">#6D2300</color><!--#FFFFFF-->
 
     <color name="finishedBackground">#DDDDDD</color><!--#FFFFFF-->
+    <color name="draggingBackground">#DDDDDD</color><!--#FFFFFF-->
 </resources>

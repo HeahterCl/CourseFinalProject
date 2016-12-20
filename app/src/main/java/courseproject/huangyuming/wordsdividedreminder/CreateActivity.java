@@ -10,8 +10,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -29,6 +34,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -47,7 +53,7 @@ import java.util.List;
 import courseproject.huangyuming.bean.Reminder;
 import courseproject.huangyuming.utility.SpeechRecognitionHelper;
 
-public class CreateActivity extends Activity {
+public class CreateActivity extends AppCompatActivity {
     private static final String dividerurl = "http://api.ltp-cloud.com/analysis/";
     private static final String stringToTimeUrl = "http://osp.voicecloud.cn/index.php/ajax/generaldic/getresult";
     private static final int UPDATE_CONTENT = 0;
@@ -219,13 +225,23 @@ public class CreateActivity extends Activity {
             super.handleMessage(message);
             if (message.what == UPDATE_CONTENT) {
                 List<String> response = (List<String>) message.obj;
-                mainlayout.removeAllViews();
-                LinearLayout linearLayout = new LinearLayout(CreateActivity.this);
-                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 0, 1));
-                linearLayout.setOrientation(LinearLayout.VERTICAL);
+//                Log.e("spider", response)
+                JSONArray array;
                 try {
-                    //解析分词JSON
-                    JSONArray array = new JSONArray(response.get(0));
+                    // 解析分词JSON
+                    array = new JSONArray(response.get(0));
+                } catch (JSONException e) {
+                    wait.dismiss();
+                    e.printStackTrace();
+                    Toast.makeText(CreateActivity.this, "分词失败了(；′⌒`)要不要手动输入试试？", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                try {
+                    LinearLayout linearLayout = new LinearLayout(CreateActivity.this);
+                    linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 0, 1));
+                    linearLayout.setOrientation(LinearLayout.VERTICAL);
+
                     array = array.getJSONArray(0);
                     array = array.getJSONArray(0);
                     DisplayMetrics metrics = new DisplayMetrics();
@@ -258,17 +274,22 @@ public class CreateActivity extends Activity {
                         }
                         linearLayout.addView(tableRow);
                     }
+
+                    // JSONArray转化失败后不应改变视图
+                    mainlayout.removeAllViews();
                     mainlayout.addView(linearLayout);
-                    mainlayout.addView(divider);
                     mainlayout.addView(after);
                     mainlayout.addView(complete);
-                } catch (Exception e) {
+
+                } catch (JSONException e) {
                     e.printStackTrace();
+                    Toast.makeText(CreateActivity.this, "啊(；′⌒`)出现了意想不到的错误", Toast.LENGTH_SHORT).show();
                 }
+
                 wait.dismiss();
 
                 try {
-                    //解析时间JSON
+                    // 解析时间JSON
                     JSONObject jsonObject = new JSONObject(response.get(1));
                     jsonObject = jsonObject.getJSONObject("semantic");
                     jsonObject = jsonObject.getJSONObject("slots");
@@ -276,7 +297,7 @@ public class CreateActivity extends Activity {
                     time = jsonObject.getString("time");
                     date = jsonObject.getString("date");
                 } catch (Exception e) {
-                    Toast.makeText(CreateActivity.this, "无法知道时间呢(；′⌒`)要不要手动输入试试？", Toast.LENGTH_LONG).show();
+                    Toast.makeText(CreateActivity.this, "无法知道时间呢(；′⌒`)要不要手动输入试试？", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -352,4 +373,5 @@ public class CreateActivity extends Activity {
             details.setText(details.getText()+text);
         }
     }
+
 }

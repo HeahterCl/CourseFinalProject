@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/before"
+        android:padding="5dp"
+        android:background="@drawable/edittext_style"
+        android:gravity="top"
+        android:hint="请在这里粘贴文本"/>
+    <Button
+        style="@style/ButtonStyle"
+        android:text="语音识别"
+        android:id="@+id/startSRBtn" />
+    <Button
+        style="@style/ButtonStyle"
+        android:text="智能分词"
+        android:id="@+id/divider" />
+
+</LinearLayout>

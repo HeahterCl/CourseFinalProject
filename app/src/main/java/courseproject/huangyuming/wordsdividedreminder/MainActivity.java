@@ -35,6 +35,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             Reminder h = (Reminder) data.getSerializableExtra("reminder");
             try {
                 DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().create(h);
-                mItemArray.add(new Pair<>((long) mItemArray.size(), h));
+                mItemArray.add(new Pair<>((long) (Math.random()*1000), h));
                 mListAdapter.notifyDataSetChanged();
 
                 Snackbar.make(mFab, "创建成功", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
@@ -231,8 +232,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static class MyDragItem extends DragItem {
 
+        private Context context;
+
         public MyDragItem(Context context, int layoutId) {
             super(context, layoutId);
+            this.context = context;
         }
 
         @Override
@@ -246,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
             text = ((TextView) clickedView.findViewById(R.id.contents)).getText();
             ((TextView) dragView.findViewById(R.id.contents)).setText(text);
 
-            dragView.setBackgroundColor(0xFF4876FF);
+            dragView.setBackgroundColor(context.getResources().getColor(R.color.draggingBackground));
         }
     }
 
