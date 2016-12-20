@@ -2,6 +2,7 @@ package courseproject.huangyuming.wordsdividedreminder;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -111,7 +112,7 @@ public class CreateActivity extends Activity {
                     NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
                     if (networkInfo != null && networkInfo.isConnected()) {
                         new Thread(networkTask).start();
-                        wait = new AlertDialog.Builder(CreateActivity.this).setMessage("正在加载中，请耐心等待......").create();
+                        wait =ProgressDialog.show(CreateActivity.this, "", "正在加载中，请耐心等待......");
                         wait.show();
                     } else {
                         Toast.makeText(CreateActivity.this, "当前没有可用网络哦_(:з)∠)_请检查你的网络连接", Toast.LENGTH_LONG).show();
