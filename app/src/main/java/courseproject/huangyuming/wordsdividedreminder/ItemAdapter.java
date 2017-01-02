@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,6 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import courseproject.huangyuming.bean.Reminder;
+import courseproject.huangyuming.bean.ReminderDao;
 
 /**
  * Created by ym on 16-10-16.
