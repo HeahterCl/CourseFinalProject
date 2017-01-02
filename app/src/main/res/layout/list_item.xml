@@ -3,9 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="5dp"
+    android:paddingBottom="5dp"
     android:paddingLeft="5dp"
     android:paddingRight="10dp"
-    android:id="@+id/root">
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    android:id="@+id/root"
+    android:background="@drawable/listitem_style_incomplete"
+    >
 
     <ImageView
         android:id="@+id/list_item_image"

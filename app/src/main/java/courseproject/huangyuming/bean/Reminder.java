@@ -80,4 +80,8 @@ public class Reminder implements Serializable {
     public void setFinished(boolean finished) {
         this.finished = finished;
     }
+
+    public int getId() {
+        return this.id;
+    }
 }

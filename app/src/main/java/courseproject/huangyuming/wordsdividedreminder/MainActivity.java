@@ -1,17 +1,25 @@
 package courseproject.huangyuming.wordsdividedreminder;
 
+import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -25,7 +33,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.query.In;
 import com.j256.ormlite.table.DatabaseTable;
+import com.sun.jna.IntegerType;
 import com.woxthebox.draglistview.DragItem;
 import com.woxthebox.draglistview.DragListView;
 import courseproject.huangyuming.bean.Reminder;
@@ -33,9 +43,12 @@ import courseproject.huangyuming.bean.ReminderDao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.TimeZone;
+import java.util.logging.Filter;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
     private SensorManager mSensorManager;
     private Sensor mMagneticSensor;
     private Sensor mAccelerometerSensor;
+
+    //闹钟
+    private AlarmReceiver alarmReceiver = new AlarmReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +91,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST);
             }
         });
+
+        //注册闹钟广播接受器
+        IntentFilter intentfileter = new IntentFilter();
+        intentfileter.addAction("CLOCK");
+        registerReceiver(alarmReceiver, intentfileter);
 
         setupListRecyclerView();
     }
@@ -136,8 +157,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-//        DatabaseHelper.getHelper(MainActivity.this).close();
         super.onDestroy();
+        unregisterReceiver(alarmReceiver);
     }
 
     @Override
@@ -160,9 +181,35 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK && requestCode == MainActivity.REQUEST) {
             Reminder h = (Reminder) data.getSerializableExtra("reminder");
             try {
+                //数据库操作
                 DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().create(h);
                 mItemArray.add(new Pair<>((long) (Math.random()*1000), h));
                 mListAdapter.notifyDataSetChanged();
+
+                if (data.getExtras().getBoolean("clockEnable") == true) {
+                    //添加闹钟
+                    String[] time = h.getTime().split("-| |:");
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.YEAR, Integer.valueOf(time[0]));
+                    calendar.set(Calendar.MONTH, Integer.valueOf(time[1])-1);
+                    calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(time[2])-1);
+                    calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(time[3]));
+                    calendar.set(Calendar.MINUTE, Integer.valueOf(time[4]));
+                    calendar.set(Calendar.SECOND, 0);
+
+                    int Code = 0;//闹钟的唯一标示
+                    Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+                    intent.setAction("CLOCK");
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("clock", h);
+                    intent.putExtras(bundle);
+                    PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, Code, intent, 0);
+                    //得到AlarmManager实例
+                    AlarmManager am = (AlarmManager)getSystemService(ALARM_SERVICE);
+                    //根据当前时间预设一个警报
+                    am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pi);
+                    Log.v("id", Integer.toString(h.getId()));
+                }
 
                 Snackbar.make(mFab, "创建成功", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
             } catch (Exception e) {
