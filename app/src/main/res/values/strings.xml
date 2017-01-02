@@ -1,4 +1,8 @@
 <resources>
+<<<<<<< HEAD
     <string name="app_name">备忘鹿</string>
+=======
+    <string name="app_name">备忘录</string>
+>>>>>>> 82161c5074f08ffb9f38df766e8ad16d3ead1af0
     <string name="action_settings">Settings</string>
 </resources>

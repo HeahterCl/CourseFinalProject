@@ -7,8 +7,12 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="courseproject.huangyuming.wordsdividedreminder.MainActivity"
+<<<<<<< HEAD
     tools:showIn="@layout/activity_main"
     android:background="@color/buttonColor">
+=======
+    tools:showIn="@layout/activity_main">
+>>>>>>> 82161c5074f08ffb9f38df766e8ad16d3ead1af0
 
     <com.woxthebox.draglistview.DragListView
         android:id="@+id/drag_list_view"

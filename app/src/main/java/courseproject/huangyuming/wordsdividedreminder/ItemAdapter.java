@@ -61,10 +61,17 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
 
         if (h.getFinished()) {
             holder.position.setText(h.getPosition()+"(已完成)");
+<<<<<<< HEAD
             holder.root.setBackground(mContext.getResources().getDrawable(R.drawable.listitem_style_complete));
         }
         else {
             holder.root.setBackground(mContext.getResources().getDrawable(R.drawable.listitem_style_incomplete));
+=======
+            holder.root.setBackgroundColor(mContext.getResources().getColor(R.color.finishedBackground));
+        }
+        else {
+            holder.root.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
+>>>>>>> 82161c5074f08ffb9f38df766e8ad16d3ead1af0
         }
     }
 

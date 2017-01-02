@@ -54,7 +54,11 @@
                 android:textColor="#000000"
                 android:id="@+id/type"/>
         </LinearLayout>
+<<<<<<< HEAD
         <EditText
+=======
+        <TextView
+>>>>>>> 82161c5074f08ffb9f38df766e8ad16d3ead1af0
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/details"

@@ -3,9 +3,15 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
+<<<<<<< HEAD
         <item name="colorPrimary">@color/buttonColor</item>
         <item name="colorPrimaryDark">@color/buttonShadowColor</item>
         <item name="colorAccent">@color/buttonShadowColor</item>
+=======
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+>>>>>>> 82161c5074f08ffb9f38df766e8ad16d3ead1af0
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -32,7 +38,10 @@
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginBottom">10dp</item>
     </style>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 82161c5074f08ffb9f38df766e8ad16d3ead1af0
     <style name="ListItemStyle">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">16sp</item>

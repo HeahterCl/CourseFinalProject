@@ -3,9 +3,15 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+<<<<<<< HEAD
     <color name="buttonColor">#9FD1DC</color><!--#31B3D7-->
     <color name="buttonShadowColor">#83B5C0</color>
     <color name="textColor">#000000</color><!--#FFFFFF-->
+=======
+    <color name="buttonColor">#FED941</color><!--#31B3D7-->
+    <color name="buttonShadowColor">#CCCCCC</color>
+    <color name="textColor">#6D2300</color><!--#FFFFFF-->
+>>>>>>> 82161c5074f08ffb9f38df766e8ad16d3ead1af0
 
     <color name="finishedBackground">#DDDDDD</color><!--#FFFFFF-->
     <color name="draggingBackground">#DDDDDD</color><!--#FFFFFF-->
