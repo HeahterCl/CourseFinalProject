@@ -187,7 +187,10 @@ public class MainActivity extends AppCompatActivity {
                 mItemArray.add(new Pair<>((long) (Math.random()*1000), h));
                 mListAdapter.notifyDataSetChanged();
 
-                if (data.getExtras().getBoolean("clockEnable") == true) {
+                // 获取ID
+                int id = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().extractId(h);
+
+                if (data.getExtras().getBoolean("clockEnable")) {
                     //添加闹钟
                     String[] time = h.getTime().split("-| |:");
                     Calendar calendar = Calendar.getInstance();

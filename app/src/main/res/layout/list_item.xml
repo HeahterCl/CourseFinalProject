@@ -14,12 +14,10 @@
     android:id="@+id/root"
     android:background="@drawable/listitem_style_incomplete" >
 
-    <ImageView
-        android:id="@+id/list_item_image"
+    <courseproject.huangyuming.CustomView.ClockView
+        android:id="@+id/time"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:src="@mipmap/time"
-        android:layout_centerVertical="true"
         android:layout_marginRight="10dp" />
     <LinearLayout
         android:layout_weight="1"
@@ -27,7 +25,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="center_vertical"
-        android:layout_toRightOf="@id/list_item_image">
+        android:layout_toRightOf="@id/time">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

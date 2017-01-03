@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.StringBuilderPrinter;
@@ -60,6 +61,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -90,6 +92,13 @@ public class CreateActivity extends Activity {
     private String date;
     private Reminder reminder;
     private boolean clockEnable;
+
+    enum STATE {
+        EDIT_TIME,
+        EDIT_LOCA,
+        EDIT_TASK
+    }
+    private STATE state = STATE.EDIT_TIME;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,33 +157,51 @@ public class CreateActivity extends Activity {
             }
         });
 
+        // 这里有一个android自身的BUG，尝试了很多种情况后用这种方式控制比较好
+        details.setFocusable(false);
+        details.setFocusableInTouchMode(false);
+
         complete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (type.getText().toString().equals("时间")) {
-                    new AlertDialog.Builder(CreateActivity.this).setIcon(R.mipmap.clock).setTitle("闹钟")
-                            .setMessage("是否添加闹钟提醒？").setNegativeButton("是", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            clockEnable = true;
-                        }
-                    }).setPositiveButton("否", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            clockEnable = false;
-                        }
-                    }).setCancelable(false).show();
+                if (state == STATE.EDIT_TIME) {
+                    new AlertDialog.Builder(CreateActivity.this)
+                            .setIcon(R.mipmap.clock).setTitle("闹钟").setMessage("是否添加闹钟提醒？")
+                            .setCancelable(false)
+                            .setNegativeButton("是", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    clockEnable = true;
+                                }
+                            })
+                            .setPositiveButton("否", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    clockEnable = false;
+                                }
+                            })
+                            .show();
+
                     logo.setImageResource(R.mipmap.location);
                     type.setText("地点");
                     reminder.setTime(details.getText().toString());
                     details.setText("");
-                } else if (type.getText().toString().equals("地点")) {
+
+                    details.setFocusable(true);
+                    details.setFocusableInTouchMode(true);
+
+                    state = STATE.EDIT_LOCA;
+                }
+                else if (state == STATE.EDIT_LOCA) {
                     logo.setImageResource(R.mipmap.thing);
                     type.setText("任务");
                     reminder.setPosition(details.getText().toString());
                     details.setText("");
                     complete.setText("完成");
-                } else {
+
+                    state = STATE.EDIT_TASK;
+                }
+                else if (state == STATE.EDIT_TASK) {
                     reminder.setTasks(details.getText().toString());
                     Intent intent = new Intent(CreateActivity.this, MainActivity.class);
                     Bundle bundle = new Bundle();
@@ -184,14 +211,17 @@ public class CreateActivity extends Activity {
                     setResult(RESULT_OK, intent);
                     finish();
                 }
+                else {
+                    return;
+                }
             }
         });
 
+//        details.set
         details.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (type.getText().toString().equals("时间")) {
-                    details.setEnabled(false);
+                if (state == STATE.EDIT_TIME) {
                     LayoutInflater layoutInflater = LayoutInflater.from(CreateActivity.this);
                     View newView = layoutInflater.inflate(R.layout.dialog_time, null);
                     AlertDialog.Builder builder = new AlertDialog.Builder(CreateActivity.this);
@@ -203,9 +233,8 @@ public class CreateActivity extends Activity {
 
                     if (!details.getText().toString().equals("")) {
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date date = null;
                         try {
-                            date = simpleDateFormat.parse(details.getText().toString());
+                            Date date = simpleDateFormat.parse(details.getText().toString());
                             simpleDateFormat.applyPattern("yyyy-MM-dd-HH-mm-ss");
                             String string = simpleDateFormat.format(date);
                             String[] dates = string.split("-");
@@ -226,14 +255,20 @@ public class CreateActivity extends Activity {
                             int date = datePicker.getDayOfMonth();
                             int hour = timePicker.getCurrentHour();
                             int minute = timePicker.getCurrentMinute();
-                            String minuteStr = minute < 10 ? "0"+Integer.toString(minute) :Integer.toString(minute);
-                            details.setText(Integer.toString(year)+"-"+Integer.toString(month)+"-"
-                                    +Integer.toString(date)+" "+Integer.toString(hour)+":"+minuteStr+":00");
+
+//                            Date d = new Date(year, month, date, hour, minute, 0);
+//                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                            String dateString = formatter.format(d);
+//
+//                            details.setText(dateString);
+
+                            String monthStr = month < 10 ? "0"+Integer.toString(month) : Integer.toString(month);
+                            String dateStr = date < 10 ? "0"+Integer.toString(date) : Integer.toString(date);
+                            String minuteStr = minute < 10 ? "0"+Integer.toString(minute) : Integer.toString(minute);
+                            details.setText(Integer.toString(year)+"-"+monthStr+"-"+dateStr+" "+Integer.toString(hour)+":"+minuteStr+":00");
                         }
                     }).create();
                     dialog.show();
-                } else {
-                    details.setEnabled(true);
                 }
             }
         });

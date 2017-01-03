@@ -19,8 +19,13 @@ import android.widget.ToggleButton;
 import com.woxthebox.draglistview.DragItemAdapter;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
+import courseproject.huangyuming.CustomView.ClockView;
 import courseproject.huangyuming.bean.Reminder;
 import courseproject.huangyuming.bean.ReminderDao;
 
@@ -56,12 +61,18 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
 
         Reminder h = mItemList.get(position).second;
 
-//        holder.time.setText(h.getTime());
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date d = fmt.parse(h.getTime());
+            holder.time.setTime(d.getHours(), d.getMinutes());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            holder.time.setTime(0, 0);
+        }
         holder.position.setText(h.getPosition());
         holder.contents.setText(h.getTasks());
 
         if (h.getFinished()) {
-//            holder.position.setText(h.getPosition()+"(已完成)");
             holder.toggleButton.setChecked(true);
             holder.root.setBackground(mContext.getResources().getDrawable(R.drawable.listitem_style_complete));
         }
@@ -77,7 +88,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
 
     public class ViewHolder extends DragItemAdapter.ViewHolder {
 
-//        public TextView time;
+        public ClockView time;
         public TextView position;
         public TextView contents;
         public LinearLayout root;
@@ -86,7 +97,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
         public ViewHolder(final View itemView) {
             super(itemView, mGrabHandleId, mDragOnLongPress);
 
-//            time = (TextView) itemView.findViewById(R.id.time);
+            time = (ClockView) itemView.findViewById(R.id.time);
             position = (TextView) itemView.findViewById(R.id.position);
             contents = (TextView) itemView.findViewById(R.id.contents);
             root = (LinearLayout) itemView.findViewById(R.id.root);
@@ -105,24 +116,27 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
 
         @Override
         public void onItemClicked(final View view) {
-            Dialog dialog = new AlertDialog.Builder(view.getContext()).setTitle("(⊙ˍ⊙)").setMessage("确定将其设置为已完成？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    Reminder r = getItemList().get(getAdapterPosition()).second;
-                    r.setFinished(true);
-                    try {
-                        DatabaseHelper.getHelper(mContext).getRemindersDao().update(r);
-                        notifyItemChanged(getAdapterPosition());
+            final Reminder r = getItemList().get(getAdapterPosition()).second;
+            if (!r.getFinished()) {
+                Dialog dialog = new AlertDialog.Builder(view.getContext()).setTitle("(⊙ˍ⊙)").setMessage("确定将其设置为已完成？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        r.setFinished(true);
+                        try {
+                            DatabaseHelper.getHelper(mContext).getRemindersDao().update(r);
+                            notifyItemChanged(getAdapterPosition());
 //                        ReminderDao reminderDao = new ReminderDao(view.getContext());
 //                        reminderDao.delete(Reminder.UPDATE_TIME, time.getText().toString());
 //                        getItemList().remove(getItemId());
-                        // TODO 更新UI
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                            // TODO 更新UI
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            }).setNegativeButton("取消", null).create();
-            dialog.show();
+                }).setNegativeButton("取消", null).create();
+                dialog.show();
+            }
         }
 
         @Override
