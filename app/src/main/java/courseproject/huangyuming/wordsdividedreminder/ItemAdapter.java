@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.woxthebox.draglistview.DragItemAdapter;
 
@@ -55,12 +56,13 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
 
         Reminder h = mItemList.get(position).second;
 
-        holder.time.setText(h.getTime());
+//        holder.time.setText(h.getTime());
         holder.position.setText(h.getPosition());
         holder.contents.setText(h.getTasks());
 
         if (h.getFinished()) {
-            holder.position.setText(h.getPosition()+"(已完成)");
+//            holder.position.setText(h.getPosition()+"(已完成)");
+            holder.toggleButton.setChecked(true);
             holder.root.setBackground(mContext.getResources().getDrawable(R.drawable.listitem_style_complete));
         }
         else {
@@ -75,18 +77,20 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
 
     public class ViewHolder extends DragItemAdapter.ViewHolder {
 
-        public TextView time;
+//        public TextView time;
         public TextView position;
         public TextView contents;
-        public RelativeLayout root;
+        public LinearLayout root;
+        public ToggleButton toggleButton;
 
         public ViewHolder(final View itemView) {
             super(itemView, mGrabHandleId, mDragOnLongPress);
 
-            time = (TextView) itemView.findViewById(R.id.time);
+//            time = (TextView) itemView.findViewById(R.id.time);
             position = (TextView) itemView.findViewById(R.id.position);
             contents = (TextView) itemView.findViewById(R.id.contents);
-            root = (RelativeLayout) itemView.findViewById(R.id.root);
+            root = (LinearLayout) itemView.findViewById(R.id.root);
+            toggleButton = (ToggleButton) itemView.findViewById(R.id.toggleButton);
         }
 
         @Override

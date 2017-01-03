@@ -24,6 +24,7 @@ import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -81,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
 
         mDragListView = (DragListView)findViewById(R.id.drag_list_view);
 
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -288,8 +289,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindDragView(View clickedView, View dragView) {
-            CharSequence text = ((TextView) clickedView.findViewById(R.id.time)).getText();
-            ((TextView) dragView.findViewById(R.id.time)).setText(text);
+            CharSequence text;
+
+//            text = ((TextView) clickedView.findViewById(R.id.time)).getText();
+//            ((TextView) dragView.findViewById(R.id.time)).setText(text);
 
             text = ((TextView) clickedView.findViewById(R.id.position)).getText();
             ((TextView) dragView.findViewById(R.id.position)).setText(text);

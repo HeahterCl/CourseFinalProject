@@ -9,4 +9,6 @@
 
     <color name="finishedBackground">#DDDDDD</color><!--#FFFFFF-->
     <color name="draggingBackground">#DDDDDD</color><!--#FFFFFF-->
+
+    <color name="mainColor">#9FD1DC</color><!--#31B3D7-->
 </resources>
