@@ -4,11 +4,11 @@
     <solid android:color="@color/mainColor"/>
 
     <!--控制圆角大小-->
-    <corners android:radius="4dp" />
+    <corners android:radius="8dp" />
 
     <!--控制边界线颜色和大小-->
-    <!--<stroke-->
-        <!--android:width="1dp"-->
-        <!--android:color="@android:color/holo_blue_dark" />-->
+    <stroke
+        android:width="4dp"
+        android:color="#FFEEEEEE" />
 
 </shape>

@@ -6,8 +6,8 @@
     android:paddingBottom="5dp"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:layout_marginLeft="20dp"
-    android:layout_marginRight="20dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
     android:layout_marginTop="5dp"
     android:layout_marginBottom="5dp"
     android:orientation="horizontal"
@@ -66,13 +66,12 @@
         android:layout_height="wrap_content">
         <ToggleButton
             android:id="@+id/toggleButton"
-            android:layout_margin="10dp"
             android:background="@drawable/complete_selector"
             android:enabled="false"
             android:textOn=""
             android:textOff=""
-            android:layout_width="8dp"
-            android:layout_height="8dp"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
             android:layout_gravity="center_vertical" />
     </LinearLayout>
 
