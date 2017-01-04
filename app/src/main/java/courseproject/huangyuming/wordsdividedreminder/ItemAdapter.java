@@ -75,10 +75,10 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, Reminder>, ItemAdapt
         if (h.getFinished()) {
             holder.toggleButton.setChecked(true);
             holder.root.setBackground(mContext.getResources().getDrawable(R.drawable.listitem_style_complete));
-        }
-        else {
+        } else {
             holder.root.setBackground(mContext.getResources().getDrawable(R.drawable.listitem_style_incomplete));
         }
+
     }
 
     @Override

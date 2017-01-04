@@ -24,6 +24,7 @@ import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -39,6 +40,8 @@ import com.j256.ormlite.table.DatabaseTable;
 import com.sun.jna.IntegerType;
 import com.woxthebox.draglistview.DragItem;
 import com.woxthebox.draglistview.DragListView;
+
+import courseproject.huangyuming.adapter.GroupListAdapter;
 import courseproject.huangyuming.bean.Reminder;
 import courseproject.huangyuming.bean.ReminderDao;
 
@@ -53,11 +56,13 @@ import java.util.logging.Filter;
 
 public class MainActivity extends AppCompatActivity {
 
-    private DragListView mDragListView;
+//    private DragListView mDragListView;
+    private RecyclerView recyclerView;
     private FloatingActionButton mFab;
 
-    private ArrayList<Pair<Long, Reminder>> mItemArray;
-    private ItemAdapter mListAdapter;
+    private ArrayList<Pair<Integer, Object>> mGroupedData;
+    private GroupListAdapter mGroupListAdapter;
+//    private ItemAdapter mListAdapter;
 
     private static final int REQUEST = 1;
 
@@ -80,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         mFab = (FloatingActionButton) findViewById(R.id.fab);
 
-        mDragListView = (DragListView)findViewById(R.id.drag_list_view);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -102,37 +107,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListRecyclerView() {
-        mDragListView.getRecyclerView().setVerticalScrollBarEnabled(true);
-        mDragListView.setDragListListener(new DragListView.DragListListenerAdapter() {
-            @Override
-            public void onItemDragStarted(int position) {
-                Toast.makeText(mDragListView.getContext(), "Start - position: " + position, Toast.LENGTH_SHORT).show();
-            }
+        recyclerView.setVerticalScrollBarEnabled(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-            @Override
-            public void onItemDragEnded(int fromPosition, int toPosition) {
-                if (fromPosition != toPosition) {
-                    Toast.makeText(mDragListView.getContext(), "End - position: " + toPosition, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onItemDragging(int itemPosition, float x, float y) {
-                super.onItemDragging(itemPosition, x, y);
-            }
-        });
-
-        mItemArray = new ArrayList<>();
+        mGroupedData = new ArrayList<>();
 
         // 手写数据库操作或使用框架其中选择一种
         try {
             List<Reminder> reminders = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().queryForAll();
             for (int i = 0; i < reminders.size(); ++i) {
-                mItemArray.add(new Pair<>((long) i, reminders.get(i)));
+                mGroupedData.add(new Pair<Integer, Object>(GroupListAdapter.VIEW_TYPE_DIVIDER, new Date()));
+                mGroupedData.add(new Pair<>(GroupListAdapter.VIEW_TYPE_NORMAL, (Object) reminders.get(i)));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        mGroupListAdapter = new GroupListAdapter(MainActivity.this, mGroupedData);
+        mGroupListAdapter.setOnNormalItemClickListener(new GroupListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, final int position) {
+                final Reminder r = (Reminder) mGroupListAdapter.getItem(position).second;
+
+                if (!r.getFinished()) {
+                    Dialog dialog = new AlertDialog.Builder(view.getContext()).setTitle("(⊙ˍ⊙)").setMessage("确定将其设置为已完成？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            r.setFinished(true);
+                            try {
+                                DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().update(r);
+                                mGroupListAdapter.notifyItemChanged(position);
+//                                ReminderDao reminderDao = new ReminderDao(view.getContext());
+//                                reminderDao.delete(Reminder.UPDATE_TIME, time.getText().toString());
+//                                getItemList().remove(getItemId());
+                                // TODO 更新UI
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).setNegativeButton("取消", null).create();
+                    dialog.show();
+                }
+            }
+        });
+        recyclerView.setAdapter(mGroupListAdapter);
 
 //        mReminderDao = new ReminderDao(MainActivity.this);
 //        List<Reminder> reminders = new ArrayList<>();
@@ -145,14 +164,6 @@ public class MainActivity extends AppCompatActivity {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-
-
-        mDragListView.setLayoutManager(new LinearLayoutManager(this));
-        mListAdapter = new ItemAdapter(MainActivity.this, mItemArray, R.layout.list_item, R.id.root, true);
-        mDragListView.setAdapter(mListAdapter, true);
-        mDragListView.setCanDragHorizontally(true);
-        mDragListView.setCustomDragItem(new MyDragItem(this, R.layout.list_item));
-
 
     }
 
@@ -184,8 +195,8 @@ public class MainActivity extends AppCompatActivity {
             try {
                 //数据库操作
                 DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().create(h);
-                mItemArray.add(new Pair<>((long) (Math.random()*1000), h));
-                mListAdapter.notifyDataSetChanged();
+                mGroupedData.add(new Pair<>(GroupListAdapter.VIEW_TYPE_NORMAL, (Object) h));
+                mGroupListAdapter.notifyDataSetChanged();
 
                 // 获取ID
                 int id = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().extractId(h);
@@ -251,10 +262,12 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        List<Pair<Long, Reminder>> toRemove = new ArrayList<>();
-                        for (Pair<Long, Reminder> item : mItemArray) {
-                            if (item.second.getFinished()) {
-                                toRemove.add(item);
+                        List<Pair<Integer, Object>> toRemove = new ArrayList<>();
+                        for (Pair<Integer, Object> item : mGroupedData) {
+                            if (item.first == GroupListAdapter.VIEW_TYPE_NORMAL) {
+                                if (((Reminder) item.second).getFinished()) {
+                                    toRemove.add(item);
+                                }
                             }
                         }
 
@@ -264,11 +277,11 @@ public class MainActivity extends AppCompatActivity {
                                 return;
                             }
 
-                            for (Pair<Long, Reminder> item : toRemove) {
-                                DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().delete(item.second);
+                            for (Pair<Integer, Object> item : toRemove) {
+                                DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().delete((Reminder) item.second);
                             }
-                            mItemArray.removeAll(toRemove);
-                            mListAdapter.notifyDataSetChanged();
+                            mGroupedData.removeAll(toRemove);
+                            mGroupListAdapter.notifyDataSetChanged();
 
                             Snackbar.make(mFab, "删除成功", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
                         } catch (SQLException e) {

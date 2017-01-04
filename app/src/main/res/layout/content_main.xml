@@ -10,9 +10,16 @@
     tools:showIn="@layout/activity_main"
     android:background="@android:color/white">
 
-    <com.woxthebox.draglistview.DragListView
-        android:id="@+id/drag_list_view"
+    <!--<com.woxthebox.draglistview.DragListView-->
+        <!--android:id="@+id/drag_list_view"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"/>-->
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </RelativeLayout>
