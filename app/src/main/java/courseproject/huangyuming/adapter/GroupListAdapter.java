@@ -1,7 +1,10 @@
 package courseproject.huangyuming.adapter;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,6 +24,8 @@ import java.util.Date;
 import courseproject.huangyuming.CustomView.ClockView;
 import courseproject.huangyuming.bean.Reminder;
 import courseproject.huangyuming.utility.TimeParser;
+import courseproject.huangyuming.wordsdividedreminder.DatabaseHelper;
+import courseproject.huangyuming.wordsdividedreminder.MainActivity;
 import courseproject.huangyuming.wordsdividedreminder.R;
 
 /**
@@ -67,7 +73,7 @@ public class GroupListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
 
         if (getItemViewType(position) == VIEW_TYPE_NORMAL) {
 
@@ -77,7 +83,9 @@ public class GroupListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             try {
                 Date d = fmt.parse(r.getTime());
-                holder.time.setTime(d.getHours(), d.getMinutes());
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(d);
+                holder.time.setTime(cal.get(Calendar.HOUR_OF_DAY), Calendar.MINUTE);
             } catch (ParseException e) {
                 e.printStackTrace();
                 holder.time.setTime(0, 0);
@@ -92,6 +100,37 @@ public class GroupListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 holder.toggleButton.setChecked(false);
                 holder.root.setBackground(mContext.getResources().getDrawable(R.drawable.listitem_style_incomplete));
             }
+
+            holder.toggleDetector.setTag(position);
+            holder.toggleDetector.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    final int position = (int) view.getTag();
+                    final Reminder r = (Reminder) getItem(position).second;
+
+                    if (!r.getFinished()) {
+                        Dialog dialog = new AlertDialog.Builder(view.getContext()).setTitle("(⊙ˍ⊙)").setMessage("确定将其设置为已完成？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                r.setFinished(true);
+                                try {
+                                    DatabaseHelper.getHelper(mContext).getRemindersDao().update(r);
+                                    notifyItemChanged(position);
+//                                    ReminderDao reminderDao = new ReminderDao(view.getContext());
+//                                    reminderDao.delete(Reminder.UPDATE_TIME, time.getText().toString());
+//                                    getItemList().remove(getItemId());
+                                    // TODO 更新UI
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).setNegativeButton("取消", null).create();
+                        dialog.show();
+                    }
+                }
+            });
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -156,6 +195,7 @@ public class GroupListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         public TextView contents;
         public LinearLayout root;
         public ToggleButton toggleButton;
+        public LinearLayout toggleDetector;
 
         public NormalViewHolder(final View itemView) {
             super(itemView);
@@ -164,6 +204,7 @@ public class GroupListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             contents = (TextView) itemView.findViewById(R.id.contents);
             root = (LinearLayout) itemView.findViewById(R.id.root);
             toggleButton = (ToggleButton) itemView.findViewById(R.id.toggleButton);
+            toggleDetector = (LinearLayout) itemView.findViewById(R.id.toggleDetector);
         }
 
     }

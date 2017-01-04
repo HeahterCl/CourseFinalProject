@@ -30,7 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/buttonColor"
-        android:src="@mipmap/floatbarcenter" />
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="@color/mainColor" />
+    <!--android:src="@mipmap/floatbarcenter"-->
 
 </android.support.design.widget.CoordinatorLayout>

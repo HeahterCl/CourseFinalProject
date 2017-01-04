@@ -46,12 +46,18 @@ import courseproject.huangyuming.bean.Reminder;
 import courseproject.huangyuming.bean.ReminderDao;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.logging.Filter;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private FloatingActionButton mFab;
 
-    private ArrayList<Pair<Integer, Object>> mGroupedData;
+    private ArrayList<Pair<Integer, Object>> mGroupedData = new ArrayList<>();
     private GroupListAdapter mGroupListAdapter;
 //    private ItemAdapter mListAdapter;
 
@@ -106,51 +112,55 @@ public class MainActivity extends AppCompatActivity {
         setupListRecyclerView();
     }
 
+    // 将备忘事项按时间分组
+    private ArrayList<Pair<Integer, Object>> groupRemindersByDate(List<Reminder> reminders) {
+        // TreeMap 自带默认排序
+        Map<Date, List<Reminder>> map = new TreeMap<>();
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (Reminder reminder : reminders) {
+            Date d;
+            try {
+                d = fmt.parse(reminder.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+                d = new Date(0);
+            }
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(d);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            if (!map.containsKey(cal.getTime())) {
+                map.put(cal.getTime(), new ArrayList<Reminder>());
+            }
+            map.get(cal.getTime()).add(reminder);
+        }
+        // may need to sort
+
+        ArrayList<Pair<Integer, Object>> result = new ArrayList<>();
+        for (Date key : map.keySet()) {
+            result.add(new Pair<Integer, Object>(GroupListAdapter.VIEW_TYPE_DIVIDER, key));
+            for (Reminder r : map.get(key)) {
+                result.add(new Pair<Integer, Object>(GroupListAdapter.VIEW_TYPE_NORMAL, r));
+            }
+        }
+
+        return result;
+    }
+
     private void setupListRecyclerView() {
         recyclerView.setVerticalScrollBarEnabled(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mGroupedData = new ArrayList<>();
-
         // 手写数据库操作或使用框架其中选择一种
         try {
             List<Reminder> reminders = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().queryForAll();
-            for (int i = 0; i < reminders.size(); ++i) {
-                mGroupedData.add(new Pair<Integer, Object>(GroupListAdapter.VIEW_TYPE_DIVIDER, new Date()));
-                mGroupedData.add(new Pair<>(GroupListAdapter.VIEW_TYPE_NORMAL, (Object) reminders.get(i)));
-            }
+            mGroupedData.addAll(groupRemindersByDate(reminders));
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         mGroupListAdapter = new GroupListAdapter(MainActivity.this, mGroupedData);
-        mGroupListAdapter.setOnNormalItemClickListener(new GroupListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, final int position) {
-                final Reminder r = (Reminder) mGroupListAdapter.getItem(position).second;
-
-                if (!r.getFinished()) {
-                    Dialog dialog = new AlertDialog.Builder(view.getContext()).setTitle("(⊙ˍ⊙)").setMessage("确定将其设置为已完成？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                            r.setFinished(true);
-                            try {
-                                DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().update(r);
-                                mGroupListAdapter.notifyItemChanged(position);
-//                                ReminderDao reminderDao = new ReminderDao(view.getContext());
-//                                reminderDao.delete(Reminder.UPDATE_TIME, time.getText().toString());
-//                                getItemList().remove(getItemId());
-                                // TODO 更新UI
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).setNegativeButton("取消", null).create();
-                    dialog.show();
-                }
-            }
-        });
         recyclerView.setAdapter(mGroupListAdapter);
 
 //        mReminderDao = new ReminderDao(MainActivity.this);
@@ -195,11 +205,14 @@ public class MainActivity extends AppCompatActivity {
             try {
                 //数据库操作
                 DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().create(h);
-                mGroupedData.add(new Pair<>(GroupListAdapter.VIEW_TYPE_NORMAL, (Object) h));
-                mGroupListAdapter.notifyDataSetChanged();
 
                 // 获取ID
                 int id = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().extractId(h);
+
+                List<Reminder> reminders = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().queryForAll();
+                mGroupedData.clear();
+                mGroupedData.addAll(groupRemindersByDate(reminders));
+                mGroupListAdapter.notifyDataSetChanged();
 
                 if (data.getExtras().getBoolean("clockEnable")) {
                     //添加闹钟
