@@ -2,6 +2,7 @@ package courseproject.huangyuming.CustomView;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
@@ -83,6 +84,9 @@ public class ClockView extends View {
             minuteRad = Math.PI/2-2*Math.PI/60*minute;
         }
 
+        boardPaint.setShadowLayer(radius/10, 0, 0, Color.GRAY);
+        setLayerType(LAYER_TYPE_SOFTWARE, boardPaint);
+
         // 绘制的顺序一定不能调换！！！！！！！！！！！！！！
         canvas.drawCircle(width/2, height/2, radius, boardPaint);// 小圆
         canvas.drawLine(width/2, height/2, (float) ( width/2+hourPointerLength*Math.cos(hourRad) ), (float) ( height/2-hourPointerLength*Math.sin(hourRad) ), pointerPaint);
@@ -98,6 +102,7 @@ public class ClockView extends View {
         height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
 
         radius = width < height ? width/2 : height/2;
+        radius = radius*10/11;
 
         hourPointerLength = radius/2;
         minutePointerLength = radius*2/3;
