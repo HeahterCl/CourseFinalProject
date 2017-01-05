@@ -109,26 +109,18 @@ public class GroupListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     final int position = (int) view.getTag();
                     final Reminder r = (Reminder) getItem(position).second;
 
-                    if (!r.getFinished()) {
-                        Dialog dialog = new AlertDialog.Builder(view.getContext()).setTitle("(⊙ˍ⊙)").setMessage("确定将其设置为已完成？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                                r.setFinished(true);
-                                try {
-                                    DatabaseHelper.getHelper(mContext).getRemindersDao().update(r);
-                                    notifyItemChanged(position);
-//                                    ReminderDao reminderDao = new ReminderDao(view.getContext());
-//                                    reminderDao.delete(Reminder.UPDATE_TIME, time.getText().toString());
-//                                    getItemList().remove(getItemId());
-                                    // TODO 更新UI
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }).setNegativeButton("取消", null).create();
-                        dialog.show();
+                    try {
+                        r.setFinished(!r.getFinished());
+                        DatabaseHelper.getHelper(mContext).getRemindersDao().update(r);
+                        notifyItemChanged(position);
+//                        ReminderDao reminderDao = new ReminderDao(view.getContext());
+//                        reminderDao.delete(Reminder.UPDATE_TIME, time.getText().toString());
+//                        getItemList().remove(getItemId());
+                         // TODO 更新UI
+                    } catch (SQLException e) {
+                        e.printStackTrace();
                     }
+
                 }
             });
 
