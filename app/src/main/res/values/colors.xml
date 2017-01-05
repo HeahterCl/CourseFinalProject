@@ -11,4 +11,5 @@
     <color name="draggingBackground">#DDDDDD</color><!--#FFFFFF-->
 
     <color name="mainColor">#FF1E90FF</color><!--#31B3D7-->
+    <color name="gradientGreen">#FF218868</color><!--#31B3D7-->
 </resources>
