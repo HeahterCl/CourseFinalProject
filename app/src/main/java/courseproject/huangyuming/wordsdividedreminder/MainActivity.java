@@ -18,6 +18,7 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationManagerCompat;
@@ -45,6 +46,7 @@ import com.woxthebox.draglistview.DragListView;
 import courseproject.huangyuming.adapter.GroupListAdapter;
 import courseproject.huangyuming.bean.Reminder;
 import courseproject.huangyuming.bean.ReminderDao;
+import courseproject.huangyuming.utility.TimeParser;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -65,7 +67,13 @@ public class MainActivity extends AppCompatActivity {
 
 //    private DragListView mDragListView;
     private RecyclerView recyclerView;
+    private LinearLayoutManager mLayoutManager;
+    private Toolbar toolbar;
     private FloatingActionButton mFab;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
+    private TextView header_year;
+    private TextView header_month;
+    private TextView header_day;
 
     private ArrayList<Pair<Integer, Object>> mGroupedData = new ArrayList<>();
     private GroupListAdapter mGroupListAdapter;
@@ -81,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
     //闹钟
     private AlarmReceiver alarmReceiver = new AlarmReceiver();
 
+    // 控制变量
+    private int lastFirstVisiblePos = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,11 +102,23 @@ public class MainActivity extends AppCompatActivity {
         mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         mFab = (FloatingActionButton) findViewById(R.id.fab);
-
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
+        header_year = (TextView) findViewById(R.id.header_year);
+        header_month = (TextView) findViewById(R.id.header_month);
+        header_day = (TextView) findViewById(R.id.header_day);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mLayoutManager = new LinearLayoutManager(this);
+
+        // android 的又一个奇怪之处，需要使用getSupportActionBar()获得ActionBar
+        toolbar.setTitle("");
+//        toolbar.setSubtitle("hhh");
+
+        // 考虑不设置ActionBar
         setSupportActionBar(toolbar);
+
+        setupListRecyclerView();
 
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,8 +132,6 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter intentfileter = new IntentFilter();
         intentfileter.addAction("CLOCK");
         registerReceiver(alarmReceiver, intentfileter);
-
-        setupListRecyclerView();
 
     }
 
@@ -152,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupListRecyclerView() {
         recyclerView.setVerticalScrollBarEnabled(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(mLayoutManager);
 
         // 手写数据库操作或使用框架其中选择一种
         try {
@@ -164,6 +185,51 @@ public class MainActivity extends AppCompatActivity {
 
         mGroupListAdapter = new GroupListAdapter(MainActivity.this, mGroupedData);
         recyclerView.setAdapter(mGroupListAdapter);
+
+        final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                int firstPos = mLayoutManager.findFirstVisibleItemPosition();
+                if (firstPos == lastFirstVisiblePos) {
+                    return;
+                }
+
+                lastFirstVisiblePos = firstPos;
+
+                int viewType =  mGroupListAdapter.getItem(firstPos).first;
+
+                Date d;
+                if (viewType == GroupListAdapter.VIEW_TYPE_NORMAL) {
+                    String timeString = ((Reminder)mGroupListAdapter.getItem(firstPos).second).getTime();
+                    try {
+                        d = fmt.parse(timeString);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        d = new Date(0);
+                    }
+                }
+                else {
+                    d = (Date) mGroupListAdapter.getItem(firstPos).second;
+                }
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(d);
+                header_year.setText(cal.get(Calendar.YEAR)+"");
+                header_month.setText(TimeParser.month2English(cal.get(Calendar.MONTH)+1));
+                header_day.setText(TimeParser.zeroPadding(cal.get(Calendar.DAY_OF_MONTH), 2));
+//                getSupportActionBar().setTitle(TimeParser.zeroPadding(cal.get(Calendar.DAY_OF_MONTH), 2)+"  "+TimeParser.month2English(cal.get(Calendar.MONTH)+1));
+//                getSupportActionBar().setSubtitle(cal.get(Calendar.YEAR)+"");
+//                collapsingToolbarLayout.setTitle(TimeParser.zeroPadding(cal.get(Calendar.DAY_OF_MONTH), 2)+"  "+TimeParser.month2English(cal.get(Calendar.MONTH)+1));
+            }
+        });
 
 //        mReminderDao = new ReminderDao(MainActivity.this);
 //        List<Reminder> reminders = new ArrayList<>();
