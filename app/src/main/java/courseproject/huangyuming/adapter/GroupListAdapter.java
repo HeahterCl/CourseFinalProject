@@ -85,7 +85,7 @@ public class GroupListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 Date d = fmt.parse(r.getTime());
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(d);
-                holder.time.setTime(cal.get(Calendar.HOUR_OF_DAY), Calendar.MINUTE);
+                holder.time.setTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
             } catch (ParseException e) {
                 e.printStackTrace();
                 holder.time.setTime(0, 0);
