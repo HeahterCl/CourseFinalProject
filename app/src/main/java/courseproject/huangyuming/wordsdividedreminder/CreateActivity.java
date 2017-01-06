@@ -88,8 +88,8 @@ public class CreateActivity extends Activity {
     private TextView type;
     private Button complete;
     private Dialog wait;
-    private String time;
-    private String date;
+    private String time = "";
+    private String date = "";
     private Reminder reminder;
     private boolean clockEnable;
 
