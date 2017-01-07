@@ -18,13 +18,19 @@ public class ChoiceOpenActivity extends Activity {
         TypedValue outValue = new TypedValue();
         ChoiceOpenActivity.this.getTheme().resolveAttribute(R.attr.alertDialogTheme, outValue, true);
 
-        AlertDialog builder = new AlertDialog.Builder(ChoiceOpenActivity.this).setIcon(R.mipmap.logo)
+        AlertDialog builder = new AlertDialog.Builder(ChoiceOpenActivity.this).setIcon(R.mipmap.logo).setCancelable(false)
                 .setTitle("复制").setMessage("现在打开备忘鹿吗？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(ChoiceOpenActivity.this, CreateActivity.class);
                         startActivity(intent);
+                        finish();
                     }
-                }).setNegativeButton("暂时不了", null).show();
+                }).setNegativeButton("暂时不了", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                }).show();
     }
 }

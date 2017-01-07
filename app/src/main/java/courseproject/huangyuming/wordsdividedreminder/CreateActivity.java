@@ -121,6 +121,7 @@ public class CreateActivity extends Activity {
         ClipboardManager clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
         if (!clipboardManager.getText().toString().equals("")) {
             before.setText(clipboardManager.getText().toString());
+            clipboardManager.setText("");
         }
 
         startSRBtn.setOnClickListener(new View.OnClickListener() {
@@ -447,6 +448,8 @@ public class CreateActivity extends Activity {
                     .setPositiveButton("狠心退出", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(CreateActivity.this, MainActivity.class);
+                            startActivity(intent);
                             CreateActivity.super.onBackPressed();
                         }
                     }).setNegativeButton("不了", null).setCancelable(false).show();
