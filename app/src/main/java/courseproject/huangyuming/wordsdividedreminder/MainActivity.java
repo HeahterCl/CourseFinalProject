@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private GroupListAdapter mGroupListAdapter;
 //    private ItemAdapter mListAdapter;
 
-    private static final int REQUEST = 1;
+    public static final int REQUEST = 1;
 
     // sensor
     private SensorManager mSensorManager;
