@@ -1,8 +1,11 @@
 package courseproject.huangyuming.wordsdividedreminder;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 
@@ -18,6 +21,20 @@ import courseproject.huangyuming.bean.ReminderDao;
 
 public class WelcomeActivity extends Activity {
     Button welcome;
+
+    private ClipBoardService clipBoardService;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            clipBoardService = ((ClipBoardService.ClipBoardBinder)service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            clipBoardService.onDestroy();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -41,5 +58,15 @@ public class WelcomeActivity extends Activity {
                 startActivity(intent);
             }
         });
+
+        Intent intent = new Intent(WelcomeActivity.this, ClipBoardService.class);
+        startService(intent);
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(serviceConnection);
     }
 }

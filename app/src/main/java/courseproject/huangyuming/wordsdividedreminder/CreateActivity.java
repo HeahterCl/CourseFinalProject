@@ -3,6 +3,7 @@ package courseproject.huangyuming.wordsdividedreminder;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -117,6 +118,10 @@ public class CreateActivity extends Activity {
 
         reminder = new Reminder();
 
+        ClipboardManager clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+        if (!clipboardManager.getText().toString().equals("")) {
+            before.setText(clipboardManager.getText().toString());
+        }
 
         startSRBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,8 +210,8 @@ public class CreateActivity extends Activity {
                     reminder.setTasks(details.getText().toString());
                     Intent intent = new Intent(CreateActivity.this, MainActivity.class);
                     Bundle bundle = new Bundle();
-                    bundle.putBoolean("clockEnable", clockEnable);
-                    bundle.putSerializable("reminder", reminder);
+                    bundle.putBoolean(getResources().getString(R.string.clock_enable), clockEnable);
+                    bundle.putSerializable(getResources().getString(R.string.reminder), reminder);
                     intent.putExtras(bundle);
                     setResult(RESULT_OK, intent);
                     finish();

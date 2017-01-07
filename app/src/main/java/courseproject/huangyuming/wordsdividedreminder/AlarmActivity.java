@@ -89,7 +89,7 @@ public class AlarmActivity extends Activity {
         builder.setView(newView);
 
         Bundle bundle = getIntent().getExtras();
-        Reminder reminder = (Reminder) bundle.get("clock");
+        Reminder reminder = (Reminder) bundle.get(getResources().getString(R.string.set_clock));
 
         TextView alarmTime = (TextView)newView.findViewById(R.id.alarm_time);
         alarmTime.setText(reminder.getTime());

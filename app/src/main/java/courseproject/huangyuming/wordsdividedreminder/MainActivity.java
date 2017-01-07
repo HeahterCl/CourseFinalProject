@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK && requestCode == MainActivity.REQUEST) {
-            Reminder h = (Reminder) data.getSerializableExtra("reminder");
+            Reminder h = (Reminder) data.getSerializableExtra(getResources().getString(R.string.reminder));
             try {
                 //数据库操作
                 DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().create(h);
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                 mGroupedData.addAll(groupRemindersByDate(reminders));
                 mGroupListAdapter.notifyDataSetChanged();
 
-                if (data.getExtras().getBoolean("clockEnable")) {
+                if (data.getExtras().getBoolean(getResources().getString(R.string.clock_enable))) {
                     //添加闹钟
                     String[] time = h.getTime().split("-| |:");
                     Calendar calendar = Calendar.getInstance();
@@ -294,9 +294,9 @@ public class MainActivity extends AppCompatActivity {
                     // 获取ID
                     int id = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().extractId(h);
                     Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
-                    intent.setAction("CLOCK");
+                    intent.setAction(getResources().getString(R.string.clock_action));
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable("clock", h);
+                    bundle.putSerializable(getResources().getString(R.string.set_clock), h);
                     intent.putExtras(bundle);
                     PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, id, intent, 0);
                     //得到AlarmManager实例

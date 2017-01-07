@@ -28,13 +28,11 @@
         <activity android:name=".LaunchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity android:name=".WelcomeActivity">
-
         </activity>
 
         <activity
@@ -44,18 +42,28 @@
         </activity>
 
         <activity android:name=".CreateActivity">
-
         </activity>
 
         <activity android:name=".AlarmActivity">
-
         </activity>
+
+        <activity android:name=".ChoiceOpenActivity">
+        </activity>
+
         <receiver android:name=".AlarmReceiver" android:process=":remote"
             android:enabled="true" android:exported="true">
             <intent-filter>
                 <action android:name="CLOCK"/>
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".ClipReceiver" android:enabled="true" android:exported="true">
+            <intent-filter>
+                <action android:name="CLIP"/>
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".ClipBoardService" android:exported="true"/>
     </application>
 
 </manifest>
