@@ -47,6 +47,8 @@
 
         </activity>
 
+        <activity android:name=".SearchActivity" />
+
         <activity android:name=".AlarmActivity">
 
         </activity>
