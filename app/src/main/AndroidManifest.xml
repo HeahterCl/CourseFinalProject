@@ -41,6 +41,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="qYpgxRucmsGCReAZBNUhSCOtqqZcuBsk" />
+
         <activity android:name=".LaunchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -73,10 +78,6 @@
                 <action android:name="CLIP"/>
             </intent-filter>
         </receiver>
-
-        <meta-data
-            android:name="com.baidu.lbsapi.API_KEY"
-            android:value="GgSbARVTKAyNQQXieOjAinuiituE4woF" />
 
     </application>
 
