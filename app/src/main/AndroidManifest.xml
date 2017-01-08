@@ -75,6 +75,8 @@
                 <action android:name="CLOCK"/>
             </intent-filter>
         </receiver>
+
+        <activity android:name=".AddOnActivity"></activity>
         <receiver android:name=".ClipReceiver" android:enabled="true" android:exported="true">
             <intent-filter>
                 <action android:name="CLIP"/>
