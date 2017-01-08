@@ -1,6 +1,9 @@
 package courseproject.huangyuming.wordsdividedreminder;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -13,6 +16,7 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -111,14 +115,31 @@ public class MonitorService extends Service {
                 if (DistanceUtil.getDistance(convertDesLatLng(location), new LatLng(latitude, longitude)) < 100) {
 
                     // 消耗之
+                    Intent intent = new Intent(MonitorService.this, MapActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(MonitorService.this, 0, intent, 0);
+
+                    Notification.Builder builder = new Notification.Builder(MonitorService.this);
+                    builder.setContentText("快想想附近有什么事情要做！")
+                            .setTicker("快想想附近有什么事情要做！")
+                            .setPriority(Notification.PRIORITY_DEFAULT)
+                            .setSmallIcon(R.mipmap.logo)
+                            .setAutoCancel(true)
+                            .setContentIntent(pendingIntent);
+
+                    NotificationManager nm = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                    Notification n = builder.build();
+                    nm.notify(0, n);
+
+                    Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+                    long [] pattern = {1000, 500, 200, 400};   // 停止 开启 停止 开启
+                    vibrator.vibrate(pattern, -1);
+
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("latitude", "");
                     editor.putString("longitude", "");
                     editor.commit();
 
-                    Intent intent = new Intent(MonitorService.this, MapActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
                 }
             }
 

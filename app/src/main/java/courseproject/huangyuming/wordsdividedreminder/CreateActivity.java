@@ -119,7 +119,7 @@ public class CreateActivity extends Activity {
         reminder = new Reminder();
 
         ClipboardManager clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-        if (!clipboardManager.getText().toString().equals("")) {
+        if (clipboardManager.getText() != null && !clipboardManager.getText().toString().equals("")) {
             before.setText(clipboardManager.getText().toString());
             clipboardManager.setText("");
         }

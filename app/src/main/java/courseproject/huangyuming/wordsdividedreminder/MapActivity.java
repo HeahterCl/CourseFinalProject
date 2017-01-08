@@ -79,16 +79,12 @@ public class MapActivity extends AppCompatActivity {
 
         if (getIntent().getFlags() == Intent.FLAG_ACTIVITY_NEW_TASK) {
 
-            final Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-            long [] pattern = {1000, 500, 200, 500};   // 停止 开启 停止 开启
-            vibrator.vibrate(pattern, 2);
-
             AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this)
-                    .setMessage("快想想附近有什么事要做！")
+                    .setMessage("附近一定有什么忘了的事")
                     .setPositiveButton("好", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            vibrator.cancel();
+//                            vibrator.cancel();
                         }
                     });
             builder.create().show();
@@ -298,15 +294,15 @@ public class MapActivity extends AppCompatActivity {
     private LocationListener mLocationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
 
-            if (checkLocationPermission() && mLocationManager.getLastKnownLocation(mProvider) != null) {
-                LatLng desLatLng = convertDesLatLng(mLocationManager.getLastKnownLocation(mProvider));
-                movePointerToDes(desLatLng);
-                mDesLatLng = desLatLng;
-
-                if (scrollTo) {
-                    moveScreenToDes(desLatLng);
-                }
-            }
+//            if (checkLocationPermission() && mLocationManager.getLastKnownLocation(mProvider) != null) {
+//                LatLng desLatLng = convertDesLatLng(mLocationManager.getLastKnownLocation(mProvider));
+//                movePointerToDes(desLatLng);
+//                mDesLatLng = desLatLng;
+//
+//                if (scrollTo) {
+//                    moveScreenToDes(desLatLng);
+//                }
+//            }
 
         }
         public void onStatusChanged(String provider, int status, Bundle extras) {
