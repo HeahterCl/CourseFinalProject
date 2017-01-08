@@ -112,6 +112,7 @@ public class AddOnActivity extends AppCompatActivity {
         }
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
+        viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(new PagerAdapter() {
             @Override
             public int getCount() {
@@ -129,10 +130,10 @@ public class AddOnActivity extends AppCompatActivity {
                 return views[position];
             }
 
-            @Override
-            public void destroyItem(ViewGroup container, int position, Object object) {
-                container.removeView((View) object);
-            }
+//            @Override
+//            public void destroyItem(ViewGroup container, int position, Object object) {
+//                super.destroyItem();
+//            }
         });
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
