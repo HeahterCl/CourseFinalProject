@@ -11,46 +11,43 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
-        android:id="@+id/edit_text"
+        android:id="@+id/editText"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
-        android:paddingLeft="30dp"
-        android:paddingStart="30dp"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
         android:imeOptions="actionDone"
         android:textColorLink="@android:color/white" />
 
     <TextView
-        android:text="@string/please_input_content"
+        android:text="@string/please_selecdt_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
-        android:id="@+id/textView"
+        android:id="@+id/textView3"
         android:textColor="@android:color/white"
         android:textStyle="bold"
         android:textSize="42sp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
-    <ImageButton
-        android:layout_height="20dp"
-        app:srcCompat="@mipmap/mic"
-        android:id="@+id/startSRButton"
-        android:background="@android:color/transparent"
-        android:layout_width="20dp"
-        android:layout_marginTop="8dp"
-        android:layout_alignTop="@+id/edit_text"
-        android:layout_alignStart="@+id/edit_text"
-        android:layout_marginStart="8dp" />
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView3"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="14dp"
+        android:id="@+id/addressListView"
+        android:layout_marginBottom="64dp" />
 
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@mipmap/next"
-        android:layout_alignBottom="@+id/edit_text"
-        android:layout_alignEnd="@+id/edit_text"
-        android:layout_marginBottom="16dp"
-        android:id="@+id/nextBtn"
-        android:background="@android:color/transparent" />
+        app:srcCompat="@android:drawable/ic_dialog_map"
+        android:id="@+id/mapImageButton"
+        android:background="@android:color/transparent"
+        android:layout_above="@+id/addressListView"
+        android:layout_toEndOf="@+id/textView3"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp" />
 </RelativeLayout>

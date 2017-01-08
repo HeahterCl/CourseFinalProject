@@ -2,10 +2,14 @@ package courseproject.huangyuming.wordsdividedreminder;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.view.PagerAdapter;
@@ -14,6 +18,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -21,16 +26,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -48,12 +62,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.Inflater;
 
+import courseproject.huangyuming.bean.Reminder;
 import courseproject.huangyuming.utility.SpeechRecognitionHelper;
+import courseproject.huangyuming.utility.TimeParser;
 import courseproject.huangyuming.utility.WordProcessor;
+
+import static courseproject.huangyuming.wordsdividedreminder.R.id.details;
 
 public class AddOnActivity extends AppCompatActivity {
 
@@ -61,39 +82,19 @@ public class AddOnActivity extends AppCompatActivity {
     private View[] views;
     private LayoutInflater inflater;
     private EditText editText;
+    private ImageButton nextBtn;
     private Dialog wait;
-    private ListView listView;
 
     private static final int UPDATE_CONTENT = 0;
     private WordProcessor wordProcessor = new WordProcessor();
+    private AddOnDataManager dataManager = new AddOnDataManager();
 
-    private ArrayList<String> keywords = new ArrayList<>();
-    private BaseAdapter listViewAdapter = new BaseAdapter() {
-        @Override
-        public int getCount() {
-            return keywords.size();
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return keywords.get(i);
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return (long)i;
-        }
-
-        @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-            view = view == null ? inflater.inflate(android.R.layout.simple_list_item_1, null) : view;
-            TextView textView = (TextView) view.findViewById(android.R.id.text1);
-            textView.setTextColor(Color.WHITE);
-            textView.setTextSize(24);
-            textView.setText(keywords.get(i));
-            return view;
-        }
-    };
+    private ListAdapter listViewAdapter = new ListAdapter();
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +103,13 @@ public class AddOnActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_on);
 
         inflater = getLayoutInflater();
-        views = new View[]{ getView1(), getView2() };
+        views = new View[]{getView1(), getView2(), getView3(), getView4()};
+
+        ClipboardManager clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+        if (clipboardManager.getText() != null && !clipboardManager.getText().toString().equals("")) {
+            editText.setText(clipboardManager.getText().toString());
+            clipboardManager.setText("");
+        }
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(new PagerAdapter() {
@@ -121,7 +128,17 @@ public class AddOnActivity extends AppCompatActivity {
                 container.addView(views[position]);
                 return views[position];
             }
+
+            @Override
+            public void destroyItem(ViewGroup container, int position, Object object) {
+                container.removeView((View) object);
+            }
         });
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        dataManager.setListViewAdapter(listViewAdapter);
     }
 
 //    private Runnable networkTask = new Runnable() {
@@ -194,37 +211,20 @@ public class AddOnActivity extends AppCompatActivity {
         View view = inflater.inflate(R.layout.layout_input_content, viewPager);
 
         editText = (EditText) view.findViewById(R.id.edit_text);
+        nextBtn = (ImageButton) view.findViewById(R.id.nextBtn);
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if (i == EditorInfo.IME_ACTION_DONE) {
-                    if (editText.getText().toString().equals("")) {
-                        Dialog dialog = new AlertDialog.Builder(AddOnActivity.this).setTitle("注意")
-                                .setPositiveButton("知道了", null).setMessage("时间、地点、事件不能为空哦o(*￣▽￣*)ブ").create();
-                        dialog.show();
-                    } else {
-                        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-                        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-                        if (networkInfo != null && networkInfo.isConnected()) {
-                            new Thread(() -> {
-                                List<String> words = wordProcessor.divider(editText.getText().toString());
-//                                String[] time = wordProcessor.bosonTime(editText.getText().toString());
-                                wait.dismiss();
-                                runOnUiThread(() -> {
-                                    keywords.addAll(words);
-                                    listView.setAdapter(listViewAdapter);
-                                    listViewAdapter.notifyDataSetChanged();
-                                });
-                            }).start();
-                            wait = ProgressDialog.show(AddOnActivity.this, "", "正在加载中，请耐心等待......");
-                            wait.show();
-                        } else {
-                            Toast.makeText(AddOnActivity.this, "当前没有可用网络哦_(:з)∠)_请检查你的网络连接", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                    viewPager.setCurrentItem(1, true);
+                    submit();
                 }
                 return false;
+            }
+        });
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                submit();
             }
         });
 
@@ -246,15 +246,189 @@ public class AddOnActivity extends AppCompatActivity {
 
         return view;
     }
-
     private View getView2() {
         View view = inflater.inflate(R.layout.layout_select_time, viewPager);
+        DatePicker datePicker = (DatePicker) view.findViewById(R.id.datePicker);
+        TimePicker timePicker = (TimePicker) view.findViewById(R.id.timePicker);
+        Button dateButton = (Button) view.findViewById(R.id.dateButton);
+        Button timeButton = (Button) view.findViewById(R.id.timeButton);
 
-        listView = (ListView) view.findViewById(R.id.time_list_view);
-        listView.setDividerHeight(0);
-        listView.setAdapter(listViewAdapter);
+        dateButton.setOnClickListener(v -> {
+            datePicker.setVisibility(View.VISIBLE);
+            timePicker.setVisibility(View.GONE);
+        });
+        timeButton.setOnClickListener(v -> {
+            timePicker.setVisibility(View.VISIBLE);
+            datePicker.setVisibility(View.GONE);
+        });
+
+        dataManager.setDateButton(dateButton);
+        dataManager.setDatePicker(datePicker);
+        dataManager.setTimeButton(timeButton);
+        dataManager.setTimePicker(timePicker);
 
         return view;
+    }
+    private View getView3() {
+        View view = inflater.inflate(R.layout.layout_select_location, viewPager);
+        ListView listView = (ListView) view.findViewById(R.id.addressListView);
+        EditText editText = (EditText) view.findViewById(R.id.editText);
+        ImageButton mapImageButton = (ImageButton) view.findViewById(R.id.mapImageButton);
+
+        dataManager.addListView(listView);
+        dataManager.setLocationEditText(editText);
+
+        mapImageButton.setOnClickListener(v -> {
+            startActivity(new Intent(AddOnActivity.this, MapActivity.class));
+        });
+
+        listView.setOnItemClickListener((parent, view1, position, id) ->
+                dataManager.addLocation(dataManager.getKeywordByPosition(position)));
+
+        return view;
+    }
+    private View getView4() {
+        View view = inflater.inflate(R.layout.layout_select_keyword, viewPager);
+        ListView listView = (ListView) view.findViewById(R.id.keywordListView);
+        EditText editText = (EditText) view.findViewById(R.id.keywordEditText);
+        ImageButton doneButton = (ImageButton) view.findViewById(R.id.doneImageButton);
+
+        dataManager.addListView(listView);
+        dataManager.setKeywordEditText(editText);
+
+        listView.setOnItemClickListener((parent, view1, position, id) ->
+                dataManager.addKeyword(dataManager.getKeywordByPosition(position)));
+
+        doneButton.setOnClickListener(v -> {
+            Reminder reminder = new Reminder(dataManager.getDate(),
+                    dataManager.getLocation(),
+                    dataManager.getKeyword());
+            Intent intent = new Intent(AddOnActivity.this, MainActivity.class);
+            Bundle bundle = new Bundle();
+
+            new AlertDialog.Builder(AddOnActivity.this)
+                    .setIcon(R.mipmap.clock).setTitle("闹钟").setMessage("是否添加闹钟提醒？")
+                    .setCancelable(false)
+                    .setNegativeButton("是", (dialog, which) -> {
+                        bundle.putBoolean(getResources().getString(R.string.clock_enable), true);
+                        bundle.putSerializable(getResources().getString(R.string.reminder), reminder);
+                        intent.putExtras(bundle);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    })
+                    .setPositiveButton("否", (dialog, which) -> {
+                        bundle.putBoolean(getResources().getString(R.string.clock_enable), false);
+                        bundle.putSerializable(getResources().getString(R.string.reminder), reminder);
+                        intent.putExtras(bundle);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    })
+                    .show();
+        });
+
+        return view;
+    }
+
+    private void submit() {
+        if (editText.getText().toString().equals("")) {
+            Dialog dialog = new AlertDialog.Builder(AddOnActivity.this).setTitle("注意")
+                    .setPositiveButton("知道了", null).setMessage("时间、地点、事件不能为空哦o(*￣▽￣*)ブ").create();
+            dialog.show();
+        } else {
+            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+                new Thread(() -> {
+                    List<String> words = wordProcessor.divider(editText.getText().toString());
+                    String[] timeResult = wordProcessor.bosonTime(editText.getText().toString());
+
+                    runOnUiThread(() -> {
+                        if (timeResult != null) {
+                            dataManager.setDate(timeResult[0]);
+                            dataManager.setTime(timeResult[1]);
+                        }
+                        dataManager.addKeyword(words);
+                        wait.dismiss();
+                    });
+                }).start();
+                wait = ProgressDialog.show(AddOnActivity.this, "", "正在加载中，请耐心等待......");
+                wait.show();
+            } else {
+                Toast.makeText(AddOnActivity.this, "当前没有可用网络哦_(:з)∠)_请检查你的网络连接", Toast.LENGTH_LONG).show();
+            }
+        }
+        viewPager.setCurrentItem(1, true);
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("AddOn Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
+    }
+
+    public class ListAdapter extends BaseAdapter {
+
+        private List<String> dataSource = new ArrayList<>();
+
+        public void setDataSource(List<String> source) {
+            dataSource.addAll(source);
+        }
+
+        @Override
+        public int getCount() {
+            return dataSource.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return dataSource.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return (long) i;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            view = view == null ? inflater.inflate(android.R.layout.simple_list_item_1, null) : view;
+            TextView textView = (TextView) view.findViewById(android.R.id.text1);
+            textView.setTextColor(Color.WHITE);
+            textView.setTextSize(24);
+            textView.setText(dataSource.get(i));
+            return view;
+        }
+
     }
 
 //    private Handler handler = new Handler() {

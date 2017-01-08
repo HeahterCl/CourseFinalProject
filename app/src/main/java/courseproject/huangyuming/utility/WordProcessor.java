@@ -125,7 +125,6 @@ public class WordProcessor {
             JSONObject timeObject = new JSONObject(stringBuilder.toString());
             String[] timestamp = timeObject.getString("timestamp").split(" ");
             result = timestamp;
-
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -33,7 +33,7 @@ public class ChoiceOpenActivity extends Activity {
                 .setTitle("复制").setMessage("现在打开备忘鹿吗？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(ChoiceOpenActivity.this, CreateActivity.class);
+                        Intent intent = new Intent(ChoiceOpenActivity.this, AddOnActivity.class);
                         startActivityForResult(intent, REQUEST);
                     }
                 }).setNegativeButton("暂时不了", new DialogInterface.OnClickListener() {
