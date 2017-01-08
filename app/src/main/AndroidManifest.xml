@@ -46,7 +46,10 @@
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="qYpgxRucmsGCReAZBNUhSCOtqqZcuBsk" />
+            android:value="GgSbARVTKAyNQQXieOjAinuiituE4woF" />
+
+        <!--hcl key-->
+        <!--qYpgxRucmsGCReAZBNUhSCOtqqZcuBsk-->
 
         <activity android:name=".LaunchActivity">
             <intent-filter>
