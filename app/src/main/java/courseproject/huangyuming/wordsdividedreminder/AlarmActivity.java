@@ -89,7 +89,7 @@ public class AlarmActivity extends Activity {
         builder.setView(newView);
 
         Bundle bundle = getIntent().getExtras();
-        Reminder reminder = (Reminder) bundle.get("clock");
+        Reminder reminder = (Reminder) bundle.get(getResources().getString(R.string.set_clock));
 
         TextView alarmTime = (TextView)newView.findViewById(R.id.alarm_time);
         alarmTime.setText(reminder.getTime());
@@ -99,7 +99,7 @@ public class AlarmActivity extends Activity {
         alarmThing.setText(reminder.getTasks());
 
         builder.setIcon(R.mipmap.clock)
-                .setTitle("这个事情可不能忘哦").setPositiveButton("知道了", new DialogInterface.OnClickListener() {
+                .setTitle("这个事情可不能忘哦").setCancelable(false).setPositiveButton("知道了", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         vibrator.cancel();

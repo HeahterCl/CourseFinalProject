@@ -32,6 +32,7 @@
             <TextView
                 android:id="@+id/position"
                 style="@style/ListItemStyle"
+                android:textStyle="bold"
                 android:text="position"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"/>
@@ -47,6 +48,7 @@
             android:id="@+id/contents"
             style="@style/ListItemStyle"
             android:text="contents"
+            android:textSize="14sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

@@ -23,7 +23,7 @@ public class LaunchActivity extends Activity {
 
         RxPermissions rxPermissions = new RxPermissions(LaunchActivity.this);
         rxPermissions.request(Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_CONTACTS)
+                Manifest.permission.READ_CONTACTS, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
                 .subscribe(new Action1<Boolean>() {
                     @Override
                     public void call(Boolean granted) {

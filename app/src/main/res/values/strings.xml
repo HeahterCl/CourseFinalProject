@@ -4,4 +4,11 @@
     <string name="please_input_content">请输入内容</string>
     <string name="please_select_time">请选择时间</string>
     <string name="please_select_keywords">请选择关键词</string>
+    <string name="clipboard_value">clipboardvalue</string>
+    <string name="clock_enable">clockEnable</string>
+    <string name="reminder">reminder</string>
+    <string name="clipboardservice_action">CLIP</string>
+    <string name="clock_action">CLOCK</string>
+    <string name="set_clock">clock</string>
 </resources>
+

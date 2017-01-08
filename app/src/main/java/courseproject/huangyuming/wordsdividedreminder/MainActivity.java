@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.database.DatabaseErrorHandler;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private GroupListAdapter mGroupListAdapter;
 //    private ItemAdapter mListAdapter;
 
-    private static final int REQUEST = 1;
+    public static final int REQUEST = 1;
 
     // sensor
     private SensorManager mSensorManager;
@@ -269,42 +270,39 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK && requestCode == MainActivity.REQUEST) {
-            Reminder h = (Reminder) data.getSerializableExtra("reminder");
+            Reminder h = (Reminder) data.getSerializableExtra(getResources().getString(R.string.reminder));
             try {
                 //数据库操作
                 DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().create(h);
-
-                // 获取ID
-                int id = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().extractId(h);
 
                 List<Reminder> reminders = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().queryForAll();
                 mGroupedData.clear();
                 mGroupedData.addAll(groupRemindersByDate(reminders));
                 mGroupListAdapter.notifyDataSetChanged();
 
-                if (data.getExtras().getBoolean("clockEnable")) {
+                if (data.getExtras().getBoolean(getResources().getString(R.string.clock_enable))) {
                     //添加闹钟
                     String[] time = h.getTime().split("-| |:");
                     Calendar calendar = Calendar.getInstance();
                     calendar.set(Calendar.YEAR, Integer.valueOf(time[0]));
                     calendar.set(Calendar.MONTH, Integer.valueOf(time[1])-1);
-                    calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(time[2])-1);
+                    calendar.set(Calendar.DAY_OF_MONTH, Integer.valueOf(time[2]));
                     calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(time[3]));
                     calendar.set(Calendar.MINUTE, Integer.valueOf(time[4]));
                     calendar.set(Calendar.SECOND, 0);
 
-                    int Code = 0;//闹钟的唯一标示
+                    // 获取ID
+                    int id = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().extractId(h);
                     Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
-                    intent.setAction("CLOCK");
+                    intent.setAction(getResources().getString(R.string.clock_action));
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable("clock", h);
+                    bundle.putSerializable(getResources().getString(R.string.set_clock), h);
                     intent.putExtras(bundle);
-                    PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, Code, intent, 0);
+                    PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, id, intent, 0);
                     //得到AlarmManager实例
                     AlarmManager am = (AlarmManager)getSystemService(ALARM_SERVICE);
                     //根据当前时间预设一个警报
                     am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pi);
-                    Log.v("id", Integer.toString(h.getId()));
                 }
 
                 Snackbar.make(mFab, "创建成功", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
@@ -329,7 +327,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_search) {
+            startActivity(new Intent(MainActivity.this, MapActivity.class));
             return true;
         }
 
@@ -360,7 +359,17 @@ public class MainActivity extends AppCompatActivity {
 
                             for (Pair<Integer, Object> item : toRemove) {
                                 DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().delete((Reminder) item.second);
+
+                                //删除闹钟
+                                int id  = DatabaseHelper.getHelper(MainActivity.this).getRemindersDao().extractId((Reminder)item.second);
+                                Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+                                intent.setAction("CLOCK");
+                                PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, id, intent, 0);
+                                //得到AlarmManager实例
+                                AlarmManager am = (AlarmManager)getSystemService(ALARM_SERVICE);
+                                am.cancel(pi);
                             }
+
                             mGroupedData.removeAll(toRemove);
                             mGroupListAdapter.notifyDataSetChanged();
 
