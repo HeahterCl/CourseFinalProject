@@ -18,10 +18,11 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!-- 读取联系人权限，上传联系人需要用到此权限 -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
+    <!--map-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -54,15 +55,17 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".WelcomeActivity" />
+        <activity android:name=".WelcomeActivity"
+            android:noHistory="true"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:launchMode="singleInstance"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
         <activity android:name=".CreateActivity" />
-        <activity android:name=".AlarmActivity" />
-
         <activity android:name=".SearchActivity" />
+        <activity android:name=".AlarmActivity" />
         <activity android:name=".ChoiceOpenActivity" />
         <activity android:name=".MapActivity" />
 
@@ -72,7 +75,7 @@
         <receiver android:name=".AlarmReceiver" android:process=":remote"
             android:enabled="true" android:exported="true">
             <intent-filter>
-                <action android:name="CLOCK" />
+                <action android:name="CLOCK"/>
             </intent-filter>
         </receiver>
 
@@ -81,8 +84,9 @@
             <intent-filter>
                 <action android:name="CLIP"/>
             </intent-filter>
-        </receiver><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        </receiver>
+        <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+            App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

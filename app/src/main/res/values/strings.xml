@@ -11,5 +11,6 @@
     <string name="clipboardservice_action">CLIP</string>
     <string name="clock_action">CLOCK</string>
     <string name="set_clock">clock</string>
+    <string name="clip_flag">clipFlag</string>
 </resources>
 

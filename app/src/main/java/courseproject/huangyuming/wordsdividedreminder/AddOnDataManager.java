@@ -87,7 +87,7 @@ public class AddOnDataManager implements DatePicker.OnDateChangedListener,
         }
     }
     String getDate() {
-        return String.format("%04d-%02d-%02d %s:00", year, month, year, time);
+        return String.format("%04d-%02d-%02d %s:00", year, month, day, time);
     }
 
     void setTime(String time) {
