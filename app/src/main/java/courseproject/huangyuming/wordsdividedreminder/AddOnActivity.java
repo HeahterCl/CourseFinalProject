@@ -130,7 +130,7 @@ public class AddOnActivity extends AppCompatActivity {
                 return views[position];
             }
 
-//            @Override
+//            @OverrideClass 'courseproject.huangyuming.wordsdividedreminder.-$Lambda$4' does not implement interface 'android.view.View$OnFocusChangeListener' in call to 'void android.view.View$OnFocusChangeListener.onFocusChange(android.view.View, boolean)' (declaration of 'android.view.View' appears in /system/framework/framework.jar:classes2.dex)
 //            public void destroyItem(ViewGroup container, int position, Object object) {
 //                super.destroyItem();
 //            }
@@ -141,72 +141,6 @@ public class AddOnActivity extends AppCompatActivity {
 
         dataManager.setListViewAdapter(listViewAdapter);
     }
-
-//    private Runnable networkTask = new Runnable() {
-//        @Override
-//        public void run() {
-//            Message message = new Message();
-//            message.what = UPDATE_CONTENT;
-//            message.obj = setUpConnection();
-//            handler.sendMessage(message);
-//        }
-//    };
-
-//    public List<String> setUpConnection() {
-//        HttpURLConnection dividerConnection = null;
-//        final List<String> response = new ArrayList<>();
-//        try {
-//            String request = editText.getText().toString();
-//            request = URLEncoder.encode(request, "UTF-8");
-//            dividerConnection = (HttpURLConnection)((new URL(dividerurl+"?api_key=q9R131y6HtyFTMCe3ukqNXXeHWGO2IWk6FRCaq2X&pattern=all&format=json&text="+request)).openConnection());
-//            dividerConnection.setRequestMethod("GET");
-//            dividerConnection.setReadTimeout(15000);
-//            dividerConnection.setConnectTimeout(15000);
-//            dividerConnection.setDoInput(true);
-//            InputStream inputStream = dividerConnection.getInputStream();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-//            StringBuilder dividerResponse = new StringBuilder();
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                dividerResponse.append(line+"\n");
-//            }
-//            response.add(dividerResponse.toString());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (dividerConnection != null) {
-//                dividerConnection.disconnect();
-//            }
-//        }
-//
-//        HttpClient httpClient = new DefaultHttpClient();
-//        try {
-//            String request = editText.getText().toString();
-//            request = URLEncoder.encode(request, "UTF-8");
-//            HttpPost httpPost = new HttpPost(bosonTimeUrl+request);
-//
-//            //set Request header
-//            httpPost.addHeader("Content-Type", "application/json");
-//            httpPost.addHeader("Accept", "application/json");
-//            httpPost.addHeader("X-Token", token);
-//
-//            HttpResponse httpResponse = httpClient.execute(httpPost);
-//            HttpEntity entity = httpResponse.getEntity();
-//            InputStream inputStream = entity.getContent();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-//            StringBuilder timeResponse = new StringBuilder();
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                line = URLDecoder.decode(line, "UTF-8");
-//                timeResponse.append(line+"\n");
-//            }
-//            response.add(timeResponse.toString());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return response;
-//    }
 
     private View getView1() {
         View view = inflater.inflate(R.layout.layout_input_content, viewPager);
@@ -276,6 +210,7 @@ public class AddOnActivity extends AppCompatActivity {
         EditText editText = (EditText) view.findViewById(R.id.editText);
         ImageButton mapImageButton = (ImageButton) view.findViewById(R.id.mapImageButton);
 
+        view.setFocusable(true);
         dataManager.addListView(listView);
         dataManager.setLocationEditText(editText);
 

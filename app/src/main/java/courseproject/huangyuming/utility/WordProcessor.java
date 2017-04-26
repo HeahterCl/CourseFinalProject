@@ -1,5 +1,7 @@
 package courseproject.huangyuming.utility;
 
+import android.util.Log;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -27,6 +29,8 @@ import java.util.Map;
 
 public class WordProcessor {
     private static final String DIVIDER_URL = "http://api.ltp-cloud.com/analysis/";
+    private static final String divideurl = "http://ltpapi.voicecloud.cn/analysis/";
+    private static final String apikey = "r184V8z1S100r5z5I0T5AXILIiERLQWm5TRxNM6O";
     private static final String BOSON_TIME_URL = "http://api.bosonnlp.com/time/analysis";
     private static final String TOKEN = "hMmHWWid.11283._tGryZoQ5HpS";
     private static final String API_KEY = "q9R131y6HtyFTMCe3ukqNXXeHWGO2IWk6FRCaq2X";
@@ -35,7 +39,8 @@ public class WordProcessor {
     private static final Map<String, String> queries = new HashMap<>();
 
     public WordProcessor() {
-        queries.put("api_key", API_KEY);
+        //queries.put("api_key", API_KEY);
+        queries.put("api_key", apikey);
         queries.put("format", "json");
         queries.put("pattern", "all");
     }
@@ -48,7 +53,7 @@ public class WordProcessor {
             Map<String, String> query = new HashMap<>(queries);
             query.put("text", URLEncoder.encode(text, "UTF-8"));
 
-            connect = (HttpURLConnection) new URL(DIVIDER_URL +
+            connect = (HttpURLConnection) new URL(divideurl +
                     encodeQueries(query)).openConnection();
             connect.setRequestMethod("GET");
             connect.setReadTimeout(150000);
@@ -77,6 +82,7 @@ public class WordProcessor {
         List<String> words = new ArrayList<>();
 
         try {
+            Log.v("JSON Array: ", response);
             JSONArray array = new JSONArray(response)
                     .getJSONArray(0)
                     .getJSONArray(0);

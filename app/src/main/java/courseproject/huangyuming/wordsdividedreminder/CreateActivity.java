@@ -103,7 +103,7 @@ public class CreateActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create);
+        //setContentView(R.layout.activity_create);
 
         before = (EditText)findViewById(R.id.before);
         startSRBtn = (Button)findViewById(R.id.startSRBtn);
@@ -221,6 +221,8 @@ public class CreateActivity extends Activity {
                 }
             }
         });
+        complete.setFocusable(false);
+        complete.setFocusableInTouchMode(false);
 
 //        details.set
         details.setOnClickListener(new View.OnClickListener() {
